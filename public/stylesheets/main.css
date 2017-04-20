@@ -1,11 +1,14 @@
-.Aligner {
+body {
   background-color: #3E4551;
+}
+.Aligner {
   height: 100vh;
   font-family: Arial;
   display: -webkit-flex;
   display: flex;
+  padding-top: 10%;
   align-items: center;
-  justify-content: center;
+  /*justify-content: center;*/
   -webkit-flex-direction: column;
   flex-direction: column;
 }
