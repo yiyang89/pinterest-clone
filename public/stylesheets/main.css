@@ -1,0 +1,18 @@
+.Aligner {
+  background-color: #3E4551;
+  height: 100vh;
+  font-family: Arial;
+  display: -webkit-flex;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+}
+.card-text {
+  padding: 1rem;
+}
+.card {
+  width: 50vw;
+  margin: 1rem;
+}
