@@ -3,14 +3,20 @@ var app = express();
 var mongowrap = require('./scripts/mongowrap.js');
 var path = require('path');
 var passport = require('passport');
+var session = require('express-session');
+app.use(session({
+  secret: 'keyboard cat',
+  resave: true,
+  saveUninitialized: true
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 // Each type of passport plugin will require its specific oauth strategy.
-var GoogleStrategy = require('passport-google-oauth20').Strategy;
+var TwitterStrategy = require('passport-twitter').Strategy;
 // Need to create credentials on https://console.developers.google.com/
 // MOVE THESE INTO ENV VARIABLES BEFORE DEPLOYING.
-var GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-var GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+var TWITTER_CONSUMER_KEY = process.env.TWITTER_API_KEY;
+var TWITTER_CONSUMER_SECRET = process.env.TWITTER_API_SECRET;
 var AUTHHOST = process.env.AUTH_HOST;
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -23,25 +29,25 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/public'));
 
-passport.use(new GoogleStrategy({
-  clientID:     GOOGLE_CLIENT_ID,
-  clientSecret: GOOGLE_CLIENT_SECRET,
-  // callbackURL: "http://oauth-template-decky.herokuapp.com/auth/google/callback",
-  callbackURL: AUTHHOST + '/auth/google/callback',
+passport.use(new TwitterStrategy({
+  consumerKey: TWITTER_CONSUMER_KEY,
+  consumerSecret: TWITTER_CONSUMER_SECRET,
+  callbackURL: AUTHHOST + '/auth/twitter/callback',
   passReqToCallback   : true
   },
-  function(request, accessToken, refreshToken, profile, done) {
+  function(request, token, tokenSecret, profile, done) {
     // Stuff to do after verified.
+    console.log(JSON.stringify(profile));
     console.log("PROFILE: " + profile);
-    console.log("ACCESS TOKEN: " + JSON.stringify(accessToken));
-    console.log("REFRESH TOKEN: " + JSON.stringify(refreshToken));
+    console.log("TOKEN: " + JSON.stringify(token));
+    console.log("TOKEN SECRET: " + JSON.stringify(tokenSecret));
     // Store data in mongo collection
     // console.log(done);
-    mongowrap.saveToken(accessToken, profile, function(err, result) {
+    mongowrap.saveToken(token, profile, function(err, result) {
       if (err) {
         console.log(err);
       } else {
-        return done(null, [accessToken, profile]);
+        return done(null, [token, profile]);
       }
     })
   }
@@ -86,15 +92,15 @@ app.get('/logout/:ACCESSTOKEN', function(request, response) {
 
 // auth code from https://c9.io/barberboy/passport-google-oauth2-example
 // send auth request to google
-app.get('/auth/google', passport.authenticate('google', { scope: ['email profile'] }))
+app.get('/auth/twitter', passport.authenticate('twitter'))
 
 // get auth callback from google
-app.get('/auth/google/callback',
-passport.authenticate('google'),
+app.get('/auth/twitter/callback',
+passport.authenticate('twitter'),
 function(request, response) {
   console.log("finished authentication");
   if (request.user) {
-    response.render('pages/index', {'user':request.user[1].name.givenName, 'token':request.user[0]});
+    response.render('pages/index', {'user':request.user[1].username, 'token':request.user[0]});
     // response.render('pages/index', {''user':request.user.emails[0].value, 'poll':null'});
   } else { response.jsonp(401); }
 });

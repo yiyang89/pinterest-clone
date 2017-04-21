@@ -1,27 +1,28 @@
 {
-  "name": "oauth-template",
+  "name": "pinterest-clone",
   "version": "1.0.0",
-  "description": "template for google oauth with passport",
+  "description": "pinterest-clone",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yiyang89/oauth-template.git"
+    "url": "git+https://github.com/yiyang89/pinterest-clone.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/yiyang89/oauth-template/issues"
+    "url": "https://github.com/yiyang89/pinterest-clone/issues"
   },
-  "homepage": "https://github.com/yiyang89/oauth-template#readme",
+  "homepage": "https://github.com/yiyang89/pinterest-clone#readme",
   "dependencies": {
     "ejs": "^2.5.6",
     "express": "^4.15.2",
     "express-session": "^1.15.2",
     "mongodb": "^2.2.26",
     "passport": "^0.3.2",
-    "passport-google-oauth": "^1.0.0"
+    "passport-google-oauth": "^1.0.0",
+    "passport-twitter": "^1.0.4"
   }
 }

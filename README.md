@@ -1,1 +1,1 @@
-# oauth-template
+# pinterest-clone

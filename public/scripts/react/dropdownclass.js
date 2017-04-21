@@ -16,7 +16,7 @@ var DropdownComponent = React.createClass({
       );
     } else {
       dropdown = (
-        <a className="nav-link" href="/auth/google">Google+ Login</a>
+        <a className="nav-link" href="/auth/twitter">Twitter Login</a>
       );
     }
     return dropdown;
