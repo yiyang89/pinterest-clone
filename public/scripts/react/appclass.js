@@ -1,16 +1,16 @@
 var AppComponent = React.createClass({
   getInitialState: function() {
-        var login = accessTokenFromServer? true : false;
-        if (login) {
-          localStorage._twitter_accesstoken = accessTokenFromServer;
-        }
-        return {
-          username: username,
-          accesstokenserver: accessTokenFromServer,
-          accesstokenlocal: localStorage._twitter_accesstoken,
-          loggedin: login
-        }
-
+    var login = accessTokenFromServer? true : false;
+    if (login) {
+      localStorage._twitter_accesstoken = accessTokenFromServer;
+    }
+    return {
+      username: username,
+      accesstokenserver: accessTokenFromServer,
+      accesstokenlocal: localStorage._twitter_accesstoken,
+      loggedin: login,
+      imagearray: []
+    }
   },
   componentWillMount: function() {
     if (localStorage._twitter_accesstoken) {
@@ -24,6 +24,9 @@ var AppComponent = React.createClass({
           })
         }.bind(this))
     }
+    $.getJSON('/api/getimages', function(result) {
+      this.setState({imagearray: result});
+    }.bind(this))
   },
   logout: function() {
     // Empty localstorage
@@ -40,9 +43,13 @@ var AppComponent = React.createClass({
   },
   uploadimage: function(address, description) {
     // Do some image uploading here.
-    console.log("beep boop");
-    console.log(address);
-    console.log(description);
+    var params = "?&address=" + encodeURIComponent(address) + "&description=" + encodeURIComponent(description) + "&username=" + this.state.username;
+    $.getJSON('/api/uploadimage/'+params, function(result) {
+      console.log("received reply!");
+      console.log(JSON.stringify(result));
+      this.setState({imagearray: result});
+    }.bind(this));
+    // Refresh the display area.
   },
   render: function() {
     // <StatusComponent username={this.state.username} accesstoken={this.state.accesstokenserver}/>
@@ -59,12 +66,14 @@ var AppComponent = React.createClass({
                 <div className="collapse navbar-collapse" id="navbarNav1">
                     <ul className="navbar-nav mr-auto">
                     </ul>
+                    <BrowseUserComponent/>
                     <SubmitImageComponent submitfunc={this.uploadimage} username={this.state.username}/>
                     <DropdownComponent loggedin={this.state.loggedin} username={this.state.username} logoutfunc={this.logout}/>
                 </div>
             </div>
         </nav>
         <div className="Aligner">
+        <MosaicComponent username={this.state.username} data={this.state.imagearray}/>
         </div>
       </div>
     );

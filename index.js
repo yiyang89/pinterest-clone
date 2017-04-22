@@ -4,6 +4,12 @@ var mongowrap = require('./scripts/mongowrap.js');
 var path = require('path');
 var passport = require('passport');
 var session = require('express-session');
+var mongodb = require('mongodb');
+var MongoClient = mongodb.MongoClient;
+// SET THIS TO A DB ON MLAB FOR DEPLOYMENT.
+var url = process.env.MONGO_ADDRESS;
+var mongo;
+
 app.use(session({
   secret: 'keyboard cat',
   resave: true,
@@ -37,13 +43,14 @@ passport.use(new TwitterStrategy({
   },
   function(request, token, tokenSecret, profile, done) {
     // Stuff to do after verified.
-    console.log(JSON.stringify(profile));
-    console.log("PROFILE: " + profile);
-    console.log("TOKEN: " + JSON.stringify(token));
-    console.log("TOKEN SECRET: " + JSON.stringify(tokenSecret));
+    // console.log(JSON.stringify(profile));
+    // console.log("PROFILE: " + profile);
+    // console.log("TOKEN: " + JSON.stringify(token));
+    // console.log("TOKEN SECRET: " + JSON.stringify(tokenSecret));
+    console.log("A user has logged in");
     // Store data in mongo collection
     // console.log(done);
-    mongowrap.saveToken(token, profile, function(err, result) {
+    mongowrap.saveToken(mongo, token, profile, function(err, result) {
       if (err) {
         console.log(err);
       } else {
@@ -67,32 +74,72 @@ app.get('/', function(request, response) {
 });
 
 app.get('/api/getimages', function(request,response) {
+  console.log("In get images API call");
   // Get all images from database and send to front end.
-
+  mongowrap.getimages(mongo, function(err, result) {
+    if (err) {
+      console.log("Error getting images: " + err);
+      response.send({"error":err});
+    } else {
+      response.send(result);
+    }
+  })
 })
 
-app.get('/api/uploadimage/:PARAMS', function(request, response) {
-  // PARAMS will contain: the link, the description, the username
-
+app.get('/api/uploadimage/', function(request, response) {
+  // request.query will contain: the link, the description, the username
+  console.log("In upload image API call");
+  console.log(request.query.address);
+  console.log(request.query.description);
+  console.log(request.query.username);
+  // Format the storage object:
+  var storageObject = {
+    "postedby": request.query.username,
+    "description": request.query.description,
+    "link": request.query.address,
+    "likes": 0,
+    "likeData": []
+  }
+  mongowrap.uploadimage(mongo, storageObject, function(err, result) {
+    if (err) {
+      console.log("Error uploading image: "+ err);
+      response.send({"error":err});
+    } else {
+      // Fetch updated image list and return to front.
+      mongowrap.getimages(mongo, function(err, result) {
+        if (err) {
+          console.log("Error getting images: "+ err);
+          response.send({"error":err});
+        } else {
+          response.send(result);
+        }
+      })
+    }
+  })
 })
 
-app.get('/api/likeimage/:PARAMS', function(request, response) {
-  // PARAMS will contain: the imageid, the username
-
+app.get('/api/likeimage/', function(request, response) {
+  // request.query will contain: the imageid, the username
+  console.log("In like image API call");
+  console.log(request.query.imageid);
+  console.log(request.query.username);
 })
 
-app.get('/api/deleteimage/:PARAMS', function(request, response) {
-  // PARAMS will contain: the imageid, the username
+app.get('/api/deleteimage/', function(request, response) {
+  // request.query will contain: the imageid, the username
+  console.log("In delete image API call");
+  console.log(request.query.imageid);
+  console.log(request.query.username);
 })
 
 app.get('/tokendetails/:ACCESSTOKEN', function(request, response) {
   // Query mongodb for profile corresponding to access token.
-  mongowrap.getTokenDetails(request.params.ACCESSTOKEN, function(err, result) {
+  mongowrap.getTokenDetails(mongo, request.params.ACCESSTOKEN, function(err, result) {
     if (err) {
       console.log(err);
     } else {
       console.log("sending result for tokendetails");
-      console.log(result);
+      // console.log(result);
       response.send(result);
     }
   })
@@ -100,7 +147,7 @@ app.get('/tokendetails/:ACCESSTOKEN', function(request, response) {
 
 app.get('/logout/:ACCESSTOKEN', function(request, response) {
   // Delete profile with this access token from mongodb.
-  mongowrap.removeToken(request.params.ACCESSTOKEN, function(err, result) {
+  mongowrap.removeToken(mongo, request.params.ACCESSTOKEN, function(err, result) {
     if (err) {
       console.log(err);
     } else {
@@ -124,7 +171,14 @@ function(request, response) {
   } else { response.jsonp(401); }
 });
 
-
-app.listen(app.get('port'), function() {
-  console.log('Node app is running on port', app.get('port'));
+MongoClient.connect(url, function (err, db) {
+  if (err) {
+    console.log('Unable to connect to the mongoDB server. Error:', err);
+  } else {
+    console.log('Connected to mongodb');
+    mongo = db;
+    app.listen(app.get('port'), function() {
+      console.log('Node app is running on port', app.get('port'));
+    });
+  }
 });

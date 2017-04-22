@@ -1,62 +1,70 @@
 var mongodb = require('mongodb');
-var MongoClient = mongodb.MongoClient;
-// SET THIS TO A DB ON MLAB FOR DEPLOYMENT.
-var url = process.env.MONGO_ADDRESS;
 
-module.exports.getTokenDetails = function(token, callback) {
-  var filterclause = {'accessToken': token};
-  MongoClient.connect(url, function (err, db) {
+// Collection: pinterestclone
+
+module.exports.getimages = function(mongoConnection, callback) {
+  mongoConnection.collection('pinterestclone').find().toArray(function(err, result) {
     if (err) {
-      console.log('Unable to connect to the mongoDB server. Error:', err);
+      callback(err, null);
     } else {
-      db.collection('accessTokens').findOne(filterclause, function (err, result) {
-        if (err) {
-          console.log(err);
-        } else {
-          // If no results found, redirect to a page notifying user
-          console.log("MongoDB fetched details for token " + token);
-          db.close();
-          callback(err, result);
-        }
-      });
+      console.log("retrieved images from database");
+      callback(null, result);
+    }
+  })
+}
+
+module.exports.uploadimage = function(mongoConnection, imageStorageObject, callback) {
+  mongoConnection.collection('pinterestclone').insertOne(imageStorageObject, function (err, result) {
+    if (err) {
+      callback(err, null);
+    } else {
+      console.log("stored imageobject: " + JSON.stringify(imageStorageObject));
+      callback(null, result);
+    }
+  })
+}
+
+module.exports.likeimage = function(mongoConnection, imageid, username, callback) {
+
+}
+
+module.exports.deleteimage = function(mongoConnection, imageid, callback) {
+
+}
+
+module.exports.getTokenDetails = function(mongoConnection, token, callback) {
+  var filterclause = {'accessToken': token};
+  mongoConnection.collection('accessTokens').findOne(filterclause, function (err, result) {
+    if (err) {
+      callback(err, null);
+    } else {
+      // If no results found, redirect to a page notifying user
+      console.log("MongoDB fetched details for token " + token);
+      callback(null, result);
     }
   });
 }
 
-module.exports.saveToken = function(token, profile, callback) {
+module.exports.saveToken = function(mongoConnection, token, profile, callback) {
   var newEntry = {"accessToken": token, "profile": profile};
-  MongoClient.connect(url, function (err, db) {
+  mongoConnection.collection('accessTokens').insertOne(newEntry, function (err, result) {
     if (err) {
-      console.log('Unable to connect to the mongoDB server. Error:', err);
+      callback(err, null);
     } else {
-      db.collection('accessTokens').insertOne(newEntry, function (err, result) {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log('Inserted documents into the "users" collection. The documents inserted with "_id" are:', result.length, result);
-          db.close();
-          callback(err, result);
-        }
-      });
+      console.log('Inserted documents into the "users" collection. The documents inserted with "_id" are:', result.length, result);
+      callback(null, result);
     }
   });
 }
 
-module.exports.removeToken = function(token, callback) {
+module.exports.removeToken = function(mongoConnection, token, callback) {
   var filterclause = {'accessToken': token};
-  MongoClient.connect(url, function (err, db) {
+  mongoConnection.collection('accessTokens').findOneAndDelete(filterclause, function (err, result) {
     if (err) {
-      console.log('Unable to connect to the mongoDB server. Error:', err);
+      callback(err, null);
     } else {
-      db.collection('accessTokens').findOneAndDelete(filterclause, function (err, result) {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log("mongodb removeQuery result: " + JSON.stringify(result));
-          db.close();
-          callback(err, result);
-        }
-      });
+      console.log("mongodb removeQuery result: " + JSON.stringify(result));
+      callback(null, result);
     }
   });
 }
