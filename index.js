@@ -66,6 +66,25 @@ app.get('/', function(request, response) {
   response.render('pages/index', {'user':null, 'token':null});
 });
 
+app.get('/api/getimages', function(request,response) {
+  // Get all images from database and send to front end.
+
+})
+
+app.get('/api/uploadimage/:PARAMS', function(request, response) {
+  // PARAMS will contain: the link, the description, the username
+
+})
+
+app.get('/api/likeimage/:PARAMS', function(request, response) {
+  // PARAMS will contain: the imageid, the username
+
+})
+
+app.get('/api/deleteimage/:PARAMS', function(request, response) {
+  // PARAMS will contain: the imageid, the username
+})
+
 app.get('/tokendetails/:ACCESSTOKEN', function(request, response) {
   // Query mongodb for profile corresponding to access token.
   mongowrap.getTokenDetails(request.params.ACCESSTOKEN, function(err, result) {

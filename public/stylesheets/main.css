@@ -15,6 +15,13 @@ body {
 .card-text {
   padding: 1rem;
 }
+.dropdown {
+  text-align: center;
+}
+input {
+  width: 80% !important;
+  margin: 1rem;
+}
 .card {
   width: 50vw;
   margin: 1rem;
