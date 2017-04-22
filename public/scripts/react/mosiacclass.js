@@ -1,13 +1,24 @@
 var MosaicComponent = React.createClass({
   render: function() {
     // Divide items between 5 columns.
-    // <img src={this.props.data[i].link}/>
     var masonrytemp = {'0': [], '1':[], '2':[], '3':[], '4': []};
     for (var i = 0; i < this.props.data.length; i++) {
       masonrytemp[i % 5].push(
-        <CardComponent carddata={this.props.data[i]} key={i}/>
+        <CardComponent carddata={this.props.data[i]} key={i} username={this.props.username} pinfunc={this.props.pinfunc} unpinfunc={this.props.unpinfunc} deletefunc={this.props.deletefunc} showmypins={this.props.mypins} showmyuploads={this.props.myuploads}/>
         );
     }
+    // var cardobjects = [];
+    // for (var i = 0; i < this.props.data.length; i++) {
+    //   cardobjects.push(
+    //     <CardComponent carddata={this.props.data[i]} key={i} username={this.props.username} pinfunc={this.props.pinfunc} unpinfunc={this.props.unpinfunc} showmypins={this.props.mypins} showmyuploads={this.props.myuploads}/>
+    //   )
+    // }
+
+    // return (
+    //   <div className="flexMasonry">
+    //     {cardobjects}
+    //   </div>
+    //   );
     return (
       <div className="grid-by-columns">
         <div className="grid-by-rows">{masonrytemp[0]}</div>

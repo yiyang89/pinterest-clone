@@ -6,7 +6,9 @@ var BrowseUserComponent = React.createClass({
         <li className="nav-item dropdown btn-group">
             <a className="nav-link dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Browse By User</a>
             <div className="dropdown-menu dropdown" aria-labelledby="dropdownMenu1">
-                <a className="dropdown-item">There's nothing here yet</a>
+            {this.props.userlist.map(function(username, i) {
+              return <a className="dropdown-item" key={i}>{username}</a>;
+            })}
             </div>
         </li>
       );

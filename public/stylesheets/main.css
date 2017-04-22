@@ -40,7 +40,16 @@ input {
   display: flex;
   -webkit-flex-direction: row;
   flex-direction: row;
+  justify-content: center;
   width: 99%;
+}
+.flexMasonry {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  height: 100vw;
+  max-height: 800px;
+  font-size: 0;
 }
 .subtext {
   font-size: 0.75rem;
@@ -69,4 +78,10 @@ input {
 }
 .description-text {
   margin-right: auto;
+}
+.btn-default-dark {
+  background-color: #00796b;
+}
+.btn-danger {
+  margin: 2px !important;
 }

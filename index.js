@@ -95,6 +95,7 @@ app.get('/api/uploadimage/', function(request, response) {
   // Format the storage object:
   var storageObject = {
     "postedby": request.query.username,
+    // "postedby": "bobinjection",
     "description": request.query.description,
     "link": request.query.address,
     "likes": 0,
@@ -123,13 +124,68 @@ app.get('/api/likeimage/', function(request, response) {
   console.log("In like image API call");
   console.log(request.query.imageid);
   console.log(request.query.username);
+  mongowrap.likeimage(mongo, request.query.imageid, request.query.username, function(err, result) {
+    if (err) {
+      console.log("Error liking image: "+ err);
+      response.send({"error":err});
+    } else {
+      // Fetch updated image list and return to front.
+      mongowrap.getimages(mongo, function(err, result) {
+        if (err) {
+          console.log("Error getting images: "+ err);
+          response.send({"error":err});
+        } else {
+          response.send(result);
+        }
+      })
+    }
+  })
+})
+
+app.get('/api/unlikeimage/', function(request, response) {
+  // request.query will contain: the imageid, the username
+  console.log("In unlike image API call");
+  console.log(request.query.imageid);
+  console.log(request.query.username);
+  mongowrap.unlikeimage(mongo, request.query.imageid, request.query.username, function(err, result) {
+    if (err) {
+      console.log("Error unliking image: "+ err);
+      response.send({"error":err});
+    } else {
+      // Fetch updated image list and return to front.
+      mongowrap.getimages(mongo, function(err, result) {
+        if (err) {
+          console.log("Error getting images: "+ err);
+          response.send({"error":err});
+        } else {
+          response.send(result);
+        }
+      })
+    }
+  })
 })
 
 app.get('/api/deleteimage/', function(request, response) {
   // request.query will contain: the imageid, the username
   console.log("In delete image API call");
   console.log(request.query.imageid);
-  console.log(request.query.username);
+  // console.log(request.query.username);
+  mongowrap.deleteimage(mongo, request.query.imageid ,function(err, result) {
+    if (err) {
+      console.log("Error deleting image: "+ err);
+      response.send({"error":err});
+    } else {
+      // Fetch updated image list and return to front.
+      mongowrap.getimages(mongo, function(err, result) {
+        if (err) {
+          console.log("Error getting images: "+ err);
+          response.send({"error":err});
+        } else {
+          response.send(result);
+        }
+      })
+    }
+  })
 })
 
 app.get('/tokendetails/:ACCESSTOKEN', function(request, response) {
