@@ -4,6 +4,9 @@ var mongowrap = require('./scripts/mongowrap.js');
 var path = require('path');
 var passport = require('passport');
 var session = require('express-session');
+var sizeof = require('image-size');
+var urlparse = require('url');
+var http = require('http');
 var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
 // SET THIS TO A DB ON MLAB FOR DEPLOYMENT.
@@ -92,31 +95,72 @@ app.get('/api/uploadimage/', function(request, response) {
   console.log(request.query.address);
   console.log(request.query.description);
   console.log(request.query.username);
-  // Format the storage object:
-  var storageObject = {
-    "postedby": request.query.username,
-    // "postedby": "bobinjection",
-    "description": request.query.description,
-    "link": request.query.address,
-    "likes": 0,
-    "likeData": []
-  }
-  mongowrap.uploadimage(mongo, storageObject, function(err, result) {
-    if (err) {
-      console.log("Error uploading image: "+ err);
-      response.send({"error":err});
-    } else {
-      // Fetch updated image list and return to front.
-      mongowrap.getimages(mongo, function(err, result) {
+  // Get imagesize.
+  var options = urlparse.parse(request.query.address);
+  http.get(options, function (httpresponse) {
+    var chunks = [];
+    httpresponse.on('data', function (chunk) {
+      chunks.push(chunk);
+    }).on('end', function() {
+      var buffer = Buffer.concat(chunks);
+      // Returns something like { height: 350, width: 590, type: 'jpg' }
+      // console.log(sizeof(buffer));
+      var dimensions = sizeof(buffer);
+      // Format the storage object:
+      var storageObject = {
+        "postedby": request.query.username,
+        // "postedby": "bobinjection",
+        "height": dimensions.height / dimensions.width,
+        "description": request.query.description,
+        "link": request.query.address,
+        "likes": 0,
+        "likeData": []
+      }
+      mongowrap.uploadimage(mongo, storageObject, function(err, result) {
         if (err) {
-          console.log("Error getting images: "+ err);
+          console.log("Error uploading image: "+ err);
           response.send({"error":err});
         } else {
-          response.send(result);
+          // Fetch updated image list and return to front.
+          mongowrap.getimages(mongo, function(err, result) {
+            if (err) {
+              console.log("Error getting images: "+ err);
+              response.send({"error":err});
+            } else {
+              response.send(result);
+            }
+          })
         }
       })
-    }
-  })
+    })
+  }).on('error', function(e) {
+    console.log("Error with image get: " + e);
+    var storageObject = {
+      "postedby": request.query.username,
+      // "postedby": "bobinjection",
+      "height": null,
+      "description": request.query.description,
+      "link": request.query.address,
+      "likes": 0,
+      "likeData": []
+    };
+    mongowrap.uploadimage(mongo, storageObject, function(err, result) {
+      if (err) {
+        console.log("Error uploading image: "+ err);
+        response.send({"error":err});
+      } else {
+        // Fetch updated image list and return to front.
+        mongowrap.getimages(mongo, function(err, result) {
+          if (err) {
+            console.log("Error getting images: "+ err);
+            response.send({"error":err});
+          } else {
+            response.send(result);
+          }
+        })
+      }
+    })
+  });
 })
 
 app.get('/api/likeimage/', function(request, response) {

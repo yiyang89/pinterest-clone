@@ -46,7 +46,7 @@ var SubmitImageComponent = React.createClass({
               <input type="url" placeholder="Link it!" value={this.state.address} onChange={this.handlechangeaddress} />
               <input type="text" placeholder="Describe it!" value={this.state.description} onChange={this.handlechangedescription} />
               <button className="btn btn-default" onClick={this.handleSubmit}>Post it!</button>
-              <p className="subtext">Only JPG and PNG are accepted</p>
+              <p className="subtext">Only JPG and PNG are accepted<br/>Only HTTP (vs HTTPS) accepted</p>
             </div>
         </li>
       );

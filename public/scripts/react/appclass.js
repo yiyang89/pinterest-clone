@@ -177,7 +177,7 @@ var AppComponent = React.createClass({
             </div>
         </nav>
         <div className="Aligner">
-        {this.state.showmosaic? <MosaicComponent username={this.state.username} uploadedname={this.state.usertarget} data={this.state.imagearray} pinfunc={this.likeimage} unpinfunc={this.unlikeimage} deletefunc={this.deleteimage} myuploads={this.state.showmyuploads} mypins={this.state.showmypins} useruploads={this.state.showuseruploads}/> : null}
+        {this.state.showmosaic && this.state.imagearray.length > 0? <MosaicComponent username={this.state.username} uploadedname={this.state.usertarget} data={this.state.imagearray} pinfunc={this.likeimage} unpinfunc={this.unlikeimage} deletefunc={this.deleteimage} myuploads={this.state.showmyuploads} mypins={this.state.showmypins} useruploads={this.state.showuseruploads}/> : null}
         </div>
       </div>
     );
