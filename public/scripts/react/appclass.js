@@ -25,19 +25,24 @@ var AppComponent = React.createClass({
             username: result.profile.username,
             accesstokenserver: result.accessToken,
             accesstokenlocal: localStorage._twitter_accesstoken,
-            loggedin: true
+            loggedin: true,
+            imagearray: result.data,
+            userlist: Array.from(new Set(result.data.map(function(entry) {
+              return entry.postedby;
+            })))
           })
         }.bind(this))
+    } else {
+      $.getJSON('/api/getimages', function(result) {
+        console.log(JSON.stringify(result));
+        this.setState({
+          imagearray: result,
+          userlist: Array.from(new Set(result.map(function(entry) {
+            return entry.postedby;
+          })))
+        });
+      }.bind(this))
     }
-    $.getJSON('/api/getimages', function(result) {
-      console.log(JSON.stringify(result));
-      this.setState({
-        imagearray: result,
-        userlist: Array.from(new Set(result.map(function(entry) {
-          return entry.postedby;
-        })))
-      });
-    }.bind(this))
   },
   logout: function() {
     // Empty localstorage
@@ -47,7 +52,9 @@ var AppComponent = React.createClass({
         username: null,
         accesstokenserver: null,
         accesstokenlocal: null,
-        loggedin: false
+        loggedin: false,
+        showmyuploads: false,
+        showmypins: false
       });
       console.log("logged out.");
     }.bind(this));
@@ -112,30 +119,30 @@ var AppComponent = React.createClass({
     this.setState({
       showmyuploads: false,
       showmypins: false,
-      showuseruploads: false,
-      showmosaic: false
+      showuseruploads: false
+      // showmosaic: false
     });
-    this.setState({showmosaic: true});
+    // this.setState({showmosaic: true});
   },
   myuploads: function() {
     // showmosaic is a temp workaround for images in cards not rerendering when filtering mosaic
     this.setState({
       showmyuploads: true,
       showuseruploads: false,
-      showmypins: false,
-      showmosaic: false
+      showmypins: false
+      // showmosaic: false
     });
-    this.setState({showmosaic: true});
+    // this.setState({showmosaic: true});
   },
   mypins: function() {
     // showmosaic is a temp workaround for images in cards not rerendering when filtering mosaic
     this.setState({
       showmyuploads: false,
       showuseruploads: false,
-      showmypins: true,
-      showmosaic: false
+      showmypins: true
+      // showmosaic: false
     });
-    this.setState({showmosaic: true});
+    // this.setState({showmosaic: true});
   },
   useruploads: function(userid) {
     console.log("useruploads called for userid: " + userid);
@@ -144,10 +151,10 @@ var AppComponent = React.createClass({
       showuseruploads: true,
       showmyuploads: false,
       showmypins: false,
-      showmosaic: false,
+      // showmosaic: false,
       usertarget: userid
     });
-    this.setState({showmosaic: true});
+    // this.setState({showmosaic: true});
   },
   render: function() {
     return (

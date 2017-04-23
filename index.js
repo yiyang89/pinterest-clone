@@ -190,13 +190,26 @@ app.get('/api/deleteimage/', function(request, response) {
 
 app.get('/tokendetails/:ACCESSTOKEN', function(request, response) {
   // Query mongodb for profile corresponding to access token.
+  // Try bundling data into this to fix weird bug on front end.
+  var resultbundle;
   mongowrap.getTokenDetails(mongo, request.params.ACCESSTOKEN, function(err, result) {
     if (err) {
       console.log(err);
+      console.log({"error":err});
     } else {
       console.log("sending result for tokendetails");
-      // console.log(result);
-      response.send(result);
+      // response.send(result);
+      resultbundle = result;
+      mongowrap.getimages(mongo, function(err, data) {
+        if (err) {
+          console.log("Error getting images: " + err);
+          response.send({"error":err});
+        } else {
+          resultbundle.data = data;
+          // console.log(JSON.stringify(resultbundle));
+          response.send(resultbundle);
+        }
+      })
     }
   })
 })

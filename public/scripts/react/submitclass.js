@@ -11,7 +11,7 @@ var SubmitImageComponent = React.createClass({
   },
   handleSubmit: function() {
     // Check if address ends in jpg or png
-    if (['jpg','png'].includes(this.state.address.slice(this.state.address.length -3, this.state.address.length))) {
+    if (['.jpg','.png'].includes(this.state.address.slice(this.state.address.length -4, this.state.address.length))) {
       // Check for valid url
       if (this.isUrlValid(this.state.address)) {
         var description = this.state.description === ''? 'No description' : this.state.description;
