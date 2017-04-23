@@ -1,10 +1,10 @@
 var CardComponent = React.createClass({
-  handlePin: function() {
+  handlePin: function(userhaspinned, id) {
     // This function should have different properties depending on whether the user has pinned this post before.
-    if (this.state.userhaspinned) {
-      this.props.unpinfunc(this.state.id, this.props.username, this.setState({userhaspinned: false}));
+    if (userhaspinned) {
+      this.props.unpinfunc(id, this.props.username);
     } else {
-      this.props.pinfunc(this.state.id, this.props.username, this.setState({userhaspinned: true}));
+      this.props.pinfunc(id, this.props.username);
     }
   },
   handleDelete: function(imageid) {
@@ -26,7 +26,7 @@ var CardComponent = React.createClass({
           <div className="description-row">
             <div className="description-text">{this.props.carddata.description}<br/><div className="subtext">- {this.props.carddata.postedby}</div></div>
             {deletebutton}
-            <button className={pincolor} onClick={this.handlePin}><i className="fa fa-thumb-tack" aria-hidden="true"/> {this.props.carddata.likes}</button>
+            <button className={pincolor} onClick={this.handlePin.bind(null, tempObj.userhaspinned, tempObj.id)}><i className="fa fa-thumb-tack" aria-hidden="true"/> {this.props.carddata.likes}</button>
           </div>
         </div>
       );
