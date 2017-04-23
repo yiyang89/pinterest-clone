@@ -26,7 +26,7 @@ var CardComponent = React.createClass({
           <div className="description-row">
             <div className="description-text">{this.props.carddata.description}<br/><div className="subtext">- {this.props.carddata.postedby}</div></div>
             {deletebutton}
-            <button className={pincolor} onClick={this.handlePin.bind(null, tempObj.userhaspinned, tempObj.id)}><i className="fa fa-thumb-tack" aria-hidden="true"/> {this.props.carddata.likes}</button>
+            <button className={pincolor} onClick={this.handlePin.bind(null, tempObj.userhaspinned, tempObj.id)} disabled={this.props.username? false : true}><i className="fa fa-thumb-tack" aria-hidden="true"/> {this.props.carddata.likes}</button>
           </div>
         </div>
       );

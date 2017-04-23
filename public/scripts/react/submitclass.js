@@ -14,12 +14,16 @@ var SubmitImageComponent = React.createClass({
     if (['.jpg','.png'].includes(this.state.address.slice(this.state.address.length -4, this.state.address.length))) {
       // Check for valid url
       if (this.isUrlValid(this.state.address)) {
-        var description = this.state.description === ''? 'No description' : this.state.description;
-        this.props.submitfunc(this.state.address.slice(), description);
-        this.setState({
-          address: '',
-          description: ''
-        })
+        if ('http:' === this.state.address.slice(0, 5).toLowerCase()) {
+          var description = this.state.description === ''? 'No description' : this.state.description;
+          this.props.submitfunc(this.state.address.slice(), description);
+          this.setState({
+            address: '',
+            description: ''
+          })
+        } else {
+          alert('Your url is not valid');
+        }
       } else {
         alert('Your url is not valid');
       }
