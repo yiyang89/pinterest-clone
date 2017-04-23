@@ -1,10 +1,24 @@
 var MosaicComponent = React.createClass({
+  // fisher yates shuffle from: https://www.frankmitchell.org/2015/01/fisher-yates/
+  shuffle: function(array) {
+    var i = 0
+    var j = 0
+    var temp = null
+
+    for (i = array.length - 1; i > 0; i -= 1) {
+      j = Math.floor(Math.random() * (i + 1))
+      temp = array[i]
+      array[i] = array[j]
+      array[j] = temp
+    }
+  },
   render: function() {
     // Filter here for even distribution.
     // My uploads
     // My Pins
     // Target user uploads
     var datacopy = this.props.data.slice();
+    this.shuffle(datacopy);
     var indextoremove = [];
     for (var i = 0; i < datacopy.length; i++) {
       if (this.props.mypins && (!datacopy[i].likeData.includes(this.props.username))) {
