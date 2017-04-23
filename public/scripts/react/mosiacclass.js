@@ -1,24 +1,32 @@
 var MosaicComponent = React.createClass({
   render: function() {
+    // Filter here for even distribution.
+    // My uploads
+    // My Pins
+    // Target user uploads
+    // var datacopy = this.props.data.slice();
+    // var indextoremove = [];
+    // for (var i = 0; i < datacopy.length; i++) {
+    //   if (this.props.mypins && (!datacopy[i].likeData.includes(this.props.username))) {
+    //     indextoremove.push(i);
+    //   } else if (this.props.myuploads && (datacopy[i].postedby !== this.props.username)) {
+    //     indextoremove.push(i);
+    //   } else if (this.props.useruploads && (datacopy[i].postedby !== this.props.uploadedname)) {
+    //     indextoremove.push(i)
+    //   }
+    // }
+    // for (var i = indextoremove.length - 1; i >= 0; i--) {
+    //   datacopy.splice(indextoremove[i], 1);
+    // }
+
     // Divide items between 5 columns.
+    console.log("rerendering mosaic");
     var masonrytemp = {'0': [], '1':[], '2':[], '3':[], '4': []};
     for (var i = 0; i < this.props.data.length; i++) {
       masonrytemp[i % 5].push(
-        <CardComponent carddata={this.props.data[i]} key={i} username={this.props.username} pinfunc={this.props.pinfunc} unpinfunc={this.props.unpinfunc} deletefunc={this.props.deletefunc} showmypins={this.props.mypins} showmyuploads={this.props.myuploads}/>
+        <CardComponent carddata={this.props.data[i]} key={i} username={this.props.username} uploadedname={this.props.uploadedname} pinfunc={this.props.pinfunc} unpinfunc={this.props.unpinfunc} deletefunc={this.props.deletefunc} showmypins={this.props.mypins} showmyuploads={this.props.myuploads} showuseruploads={this.props.useruploads}/>
         );
     }
-    // var cardobjects = [];
-    // for (var i = 0; i < this.props.data.length; i++) {
-    //   cardobjects.push(
-    //     <CardComponent carddata={this.props.data[i]} key={i} username={this.props.username} pinfunc={this.props.pinfunc} unpinfunc={this.props.unpinfunc} showmypins={this.props.mypins} showmyuploads={this.props.myuploads}/>
-    //   )
-    // }
-
-    // return (
-    //   <div className="flexMasonry">
-    //     {cardobjects}
-    //   </div>
-    //   );
     return (
       <div className="grid-by-columns">
         <div className="grid-by-rows">{masonrytemp[0]}</div>

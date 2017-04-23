@@ -15,10 +15,8 @@ body {
 .card-text {
   padding: 1rem;
 }
-.dropdown {
-  text-align: center;
-}
 .dropdownsubmit {
+  text-align: center;
   width: 300px;
 }
 input {

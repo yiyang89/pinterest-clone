@@ -1,4 +1,7 @@
 var BrowseUserComponent = React.createClass({
+  handleSelectName: function(username) {
+    this.props.useruploadfunc(username);
+  },
   render: function() {
     // Login is a single item
     // If logged in, display dropdown.
@@ -7,8 +10,8 @@ var BrowseUserComponent = React.createClass({
             <a className="nav-link dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Browse By User</a>
             <div className="dropdown-menu dropdown" aria-labelledby="dropdownMenu1">
             {this.props.userlist.map(function(username, i) {
-              return <a className="dropdown-item" key={i}>{username}</a>;
-            })}
+              return <a className="dropdown-item" key={i} onClick={this.handleSelectName.bind(null, username)}>{username}</a>;
+            }.bind(this))}
             </div>
         </li>
       );

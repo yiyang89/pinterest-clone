@@ -11,7 +11,10 @@ var AppComponent = React.createClass({
       loggedin: login,
       imagearray: [],
       showmyuploads: false,
-      showmypins: false
+      showmypins: false,
+      showuseruploads: false,
+      showmosaic: true,
+      usertarget: null
     }
   },
   componentWillMount: function() {
@@ -94,27 +97,57 @@ var AppComponent = React.createClass({
         console.log(result.error);
       } else {
         console.log("received delete reply!");
-        this.setState({imagearray: result});
+        this.setState({
+          imagearray: result,
+          showmosaic: false
+        });
+        this.setState({
+          showmosaic: true
+        });
       }
     }.bind(this));
   },
   showall: function() {
+    // showmosaic is a temp workaround for images in cards not rerendering when filtering mosaic
     this.setState({
       showmyuploads: false,
-      showmypins: false
-    })
+      showmypins: false,
+      showuseruploads: false,
+      showmosaic: false
+    });
+    this.setState({showmosaic: true});
   },
   myuploads: function() {
+    // showmosaic is a temp workaround for images in cards not rerendering when filtering mosaic
     this.setState({
       showmyuploads: true,
-      showmypins: false
-    })
+      showuseruploads: false,
+      showmypins: false,
+      showmosaic: false
+    });
+    this.setState({showmosaic: true});
   },
   mypins: function() {
+    // showmosaic is a temp workaround for images in cards not rerendering when filtering mosaic
     this.setState({
       showmyuploads: false,
-      showmypins: true
-    })
+      showuseruploads: false,
+      showmypins: true,
+      showmosaic: false
+    });
+    this.setState({showmosaic: true});
+  },
+  useruploads: function(userid) {
+    console.log("useruploads called for userid: " + userid);
+    // showmosaic is a temp workaround for images in cards not rerendering when filtering mosaic
+    this.setState({
+      showuseruploads: true,
+      showmyuploads: false,
+      showmypins: false,
+      showmosaic: false,
+      usertarget: userid
+    });
+    this.setState({showmosaic: true});
   },
   render: function() {
     return (
@@ -130,14 +163,14 @@ var AppComponent = React.createClass({
                 <div className="collapse navbar-collapse" id="navbarNav1">
                     <ul className="navbar-nav mr-auto">
                     </ul>
-                    {this.state.userlist? <BrowseUserComponent userlist={this.state.userlist}/> : null }
+                    {this.state.userlist? <BrowseUserComponent userlist={this.state.userlist} useruploadfunc={this.useruploads}/> : null }
                     <SubmitImageComponent submitfunc={this.uploadimage} username={this.state.username}/>
                     <DropdownComponent loggedin={this.state.loggedin} username={this.state.username} myuploadsfunc={this.myuploads} mypinsfunc={this.mypins} logoutfunc={this.logout}/>
                 </div>
             </div>
         </nav>
         <div className="Aligner">
-        <MosaicComponent username={this.state.username} data={this.state.imagearray} pinfunc={this.likeimage} unpinfunc={this.unlikeimage} deletefunc={this.deleteimage} myuploads={this.state.showmyuploads} mypins={this.state.showmypins}/>
+        {this.state.showmosaic? <MosaicComponent username={this.state.username} uploadedname={this.state.usertarget} data={this.state.imagearray} pinfunc={this.likeimage} unpinfunc={this.unlikeimage} deletefunc={this.deleteimage} myuploads={this.state.showmyuploads} mypins={this.state.showmypins} useruploads={this.state.showuseruploads}/> : null}
         </div>
       </div>
     );
