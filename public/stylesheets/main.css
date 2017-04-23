@@ -68,11 +68,16 @@ input {
   display: flex;
   align-items: center;
   width: 95%;
-  height: 3rem;
+  min-height: 3rem;
 }
 .description-row button {
   margin: 0;
   padding: 0.5rem;
+}
+.btn-default, .btn-default-dark {
+  height: 32px;
+  width: 38px;
+  white-space:nowrap !important;
 }
 .description-text {
   margin-right: auto;
