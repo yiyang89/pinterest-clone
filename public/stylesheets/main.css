@@ -59,6 +59,13 @@ input {
   display: flex;
   align-items: center;
 }
+.grid-item a {
+  width: 100%;
+  display: -webkit-flex;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .grid-item img {
   width: 95%;
   margin-top: 0.5rem;

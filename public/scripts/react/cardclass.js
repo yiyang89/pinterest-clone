@@ -22,7 +22,7 @@ var CardComponent = React.createClass({
     var deletebutton = tempObj.useruploaded && this.props.showmyuploads? <button className="btn btn-danger" onClick={this.handleDelete.bind(null, tempObj.id)}><i className="fa fa-trash-o" aria-hidden="true"/></button> : '';
     return (
         <div className="grid-item card">
-          <ImageComponent imageurl={this.props.carddata.link}/>
+          <ImageComponent imageurl={this.props.carddata.link} postedby={this.props.carddata.postedby} caption={this.props.carddata.description}/>
           <div className="description-row">
             <div className="description-text">{this.props.carddata.description}<br/><div className="subtext">- {this.props.carddata.postedby}</div></div>
             {deletebutton}
