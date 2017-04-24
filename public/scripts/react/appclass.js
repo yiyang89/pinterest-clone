@@ -19,6 +19,7 @@ var AppComponent = React.createClass({
   },
   componentWillMount: function() {
     if (localStorage._twitter_accesstoken) {
+      console.log("Localstorage twitter accesstoken is not null");
       // User is currently logged in
         $.getJSON('/tokendetails/'+localStorage._twitter_accesstoken, function(result) {
           this.setState({
@@ -47,7 +48,8 @@ var AppComponent = React.createClass({
   logout: function() {
     // Empty localstorage
     $.getJSON('/logout/'+accessTokenFromServer, function(result) {
-      localStorage._twitter_accesstoken = null;
+      // localStorage._twitter_accesstoken = null;
+      localStorage.removeItem("_twitter_accesstoken");
       this.setState({
         username: null,
         accesstokenserver: null,
