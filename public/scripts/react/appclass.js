@@ -1,12 +1,18 @@
+import React from 'react';
+import BrowseUserComponent from './browsebyuserclass';
+import SubmitImageComponent from './submitclass';
+import DropdownComponent from './dropdownclass';
+import MosaicComponent from './mosiacclass';
+
 var AppComponent = React.createClass({
   getInitialState: function() {
-    var login = accessTokenFromServer? true : false;
+    var login = this.props.servertoken? true : false;
     if (login) {
-      localStorage._twitter_accesstoken = accessTokenFromServer;
+      localStorage._twitter_accesstoken = this.props.servertoken;
     }
     return {
-      username: username,
-      accesstokenserver: accessTokenFromServer,
+      username: this.props.username,
+      accesstokenserver: this.props.servertoken,
       accesstokenlocal: localStorage._twitter_accesstoken,
       loggedin: login,
       imagearray: [],
@@ -17,7 +23,7 @@ var AppComponent = React.createClass({
       usertarget: null
     }
   },
-  componentWillMount: function() {
+  componentDidMount: function() {
     if (localStorage._twitter_accesstoken) {
       console.log("Localstorage twitter accesstoken is not null");
       // User is currently logged in
@@ -47,7 +53,7 @@ var AppComponent = React.createClass({
   },
   logout: function() {
     // Empty localstorage
-    $.getJSON('/logout/'+accessTokenFromServer, function(result) {
+    $.getJSON('/logout/'+this.props.servertoken, function(result) {
       // localStorage._twitter_accesstoken = null;
       localStorage.removeItem("_twitter_accesstoken");
       this.setState({
@@ -185,3 +191,5 @@ var AppComponent = React.createClass({
     );
   }
 });
+
+export default AppComponent;

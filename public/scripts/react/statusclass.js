@@ -1,3 +1,5 @@
+import React from 'react';
+
 var StatusComponent = React.createClass({
   render: function() {
     var tokentrimmed = this.props.accesstoken? this.props.accesstoken.slice(0, 15) : null;
@@ -7,3 +9,5 @@ var StatusComponent = React.createClass({
       </div>)
   }
 })
+
+export default StatusComponent;

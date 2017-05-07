@@ -1,3 +1,5 @@
+import React from 'react';
+
 var DropdownComponent = React.createClass({
   handleMyUploads: function() {
 // myuploadsfunc
@@ -32,3 +34,5 @@ var DropdownComponent = React.createClass({
     return dropdown;
   }
 })
+
+export default DropdownComponent;

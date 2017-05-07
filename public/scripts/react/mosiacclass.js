@@ -1,3 +1,6 @@
+import React from 'react';
+import CardComponent from './cardclass';
+
 var MosaicComponent = React.createClass({
   render: function() {
     // Filter here for even distribution.
@@ -53,3 +56,5 @@ var MosaicComponent = React.createClass({
       );
     }
 })
+
+export default MosaicComponent;

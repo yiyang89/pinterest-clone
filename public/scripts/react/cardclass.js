@@ -1,3 +1,6 @@
+import React from 'react';
+import ImageComponent from './imageclass';
+
 var CardComponent = React.createClass({
   handlePin: function(userhaspinned, id) {
     // This function should have different properties depending on whether the user has pinned this post before.
@@ -32,3 +35,5 @@ var CardComponent = React.createClass({
       );
   }
 })
+
+export default CardComponent;

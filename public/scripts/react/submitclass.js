@@ -1,3 +1,5 @@
+import React from 'react';
+
 var SubmitImageComponent = React.createClass({
   getInitialState: function() {
     return {
@@ -60,3 +62,5 @@ var SubmitImageComponent = React.createClass({
     return dropdown;
   }
 })
+
+export default SubmitImageComponent;

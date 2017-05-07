@@ -1,3 +1,5 @@
+import React from 'react';
+
 var BrowseUserComponent = React.createClass({
   handleSelectName: function(username) {
     this.props.useruploadfunc(username);
@@ -18,3 +20,5 @@ var BrowseUserComponent = React.createClass({
     return dropdown;
   }
 })
+
+export default BrowseUserComponent;
