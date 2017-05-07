@@ -1,10 +1,11 @@
 import React from 'react';
 
-var BrowseUserComponent = React.createClass({
-  handleSelectName: function(username) {
+class BrowseUserComponent extends React.Component{
+  handleSelectName(username) {
     this.props.useruploadfunc(username);
-  },
-  render: function() {
+  }
+
+  render() {
     // Login is a single item
     // If logged in, display dropdown.
     var dropdown = (
@@ -19,6 +20,7 @@ var BrowseUserComponent = React.createClass({
       );
     return dropdown;
   }
-})
+
+}
 
 export default BrowseUserComponent;

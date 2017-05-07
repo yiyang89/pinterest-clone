@@ -1,20 +1,22 @@
 import React from 'react';
 import ImageComponent from './imageclass';
 
-var CardComponent = React.createClass({
-  handlePin: function(userhaspinned, id) {
+class CardComponent extends React.Component{
+  handlePin(userhaspinned, id) {
     // This function should have different properties depending on whether the user has pinned this post before.
     if (userhaspinned) {
       this.props.unpinfunc(id, this.props.username);
     } else {
       this.props.pinfunc(id, this.props.username);
     }
-  },
-  handleDelete: function(imageid) {
+  }
+
+  handleDelete(imageid) {
     // console.log("handle delete: " + imageid);
     this.props.deletefunc(imageid);
-  },
-  render: function() {
+  }
+
+  render() {
     var tempObj = {
       id: this.props.carddata._id,
       userhaspinned: this.props.carddata.likeData.includes(this.props.username),
@@ -34,6 +36,7 @@ var CardComponent = React.createClass({
         </div>
       );
   }
-})
+
+}
 
 export default CardComponent;

@@ -1,17 +1,27 @@
 import React from 'react';
 
-var SubmitImageComponent = React.createClass({
-  getInitialState: function() {
-    return {
+class SubmitImageComponent extends React.Component{
+
+  constructor(props) {
+    super(props);
+
+    // class extends does not auto bind this to custom methods.
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handlechangeaddress = this.handlechangeaddress.bind(this);
+    this.handlechangedescription = this.handlechangedescription.bind(this);
+
+    this.state = {
       address: '',
       description: ''
     }
-  },
-  isUrlValid: function(url) {
+  }
+
+  isUrlValid(url) {
     // url validation courtesy of http://stackoverflow.com/questions/2723140/validating-url-with-jquery-without-the-validate-plugin
     return /^(https?|s?ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i.test(url);
-  },
-  handleSubmit: function() {
+  }
+
+  handleSubmit() {
     // Check if address ends in jpg or png
     if (['.jpg','.png'].includes(this.state.address.slice(this.state.address.length -4, this.state.address.length))) {
       // Check for valid url
@@ -32,14 +42,17 @@ var SubmitImageComponent = React.createClass({
     } else {
       alert('Your image is not of an accepted format');
     }
-  },
-  handlechangeaddress: function(event) {
+  }
+
+  handlechangeaddress(event) {
     this.setState({address: event.target.value});
-  },
-  handlechangedescription: function(event) {
+  }
+
+  handlechangedescription(event) {
     this.setState({description: event.target.value});
-  },
-  render: function() {
+  }
+
+  render() {
     var dropdown;
     if (this.props.username) {
       // <a className="dropdown-item" onClick={this.logout}>Logout</a>
@@ -61,6 +74,6 @@ var SubmitImageComponent = React.createClass({
     }
     return dropdown;
   }
-})
+}
 
 export default SubmitImageComponent;

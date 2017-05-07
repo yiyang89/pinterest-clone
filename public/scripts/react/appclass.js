@@ -4,13 +4,25 @@ import SubmitImageComponent from './submitclass';
 import DropdownComponent from './dropdownclass';
 import MosaicComponent from './mosiacclass';
 
-var AppComponent = React.createClass({
-  getInitialState: function() {
+class AppComponent extends React.Component {
+  constructor(props) {
+    super(props);
+
+    // class extends does not auto bind this to custom methods.
+    this.logout = this.logout.bind(this);
+    this.uploadimage = this.uploadimage.bind(this);
+    this.likeimage = this.likeimage.bind(this);
+    this.unlikeimage = this.unlikeimage.bind(this);
+    this.showall = this.showall.bind(this);
+    this.myuploads = this.myuploads.bind(this);
+    this.mypins = this.mypins.bind(this);
+    this.useruploads = this.useruploads.bind(this);
+
     var login = this.props.servertoken? true : false;
     if (login) {
       localStorage._twitter_accesstoken = this.props.servertoken;
     }
-    return {
+    this.state = {
       username: this.props.username,
       accesstokenserver: this.props.servertoken,
       accesstokenlocal: localStorage._twitter_accesstoken,
@@ -22,8 +34,9 @@ var AppComponent = React.createClass({
       showmosaic: true,
       usertarget: null
     }
-  },
-  componentDidMount: function() {
+  }
+
+  componentDidMount() {
     if (localStorage._twitter_accesstoken) {
       console.log("Localstorage twitter accesstoken is not null");
       // User is currently logged in
@@ -50,11 +63,11 @@ var AppComponent = React.createClass({
         });
       }.bind(this))
     }
-  },
-  logout: function() {
+  }
+
+  logout() {
     // Empty localstorage
     $.getJSON('/logout/'+this.props.servertoken, function(result) {
-      // localStorage._twitter_accesstoken = null;
       localStorage.removeItem("_twitter_accesstoken");
       this.setState({
         username: null,
@@ -66,8 +79,9 @@ var AppComponent = React.createClass({
       });
       console.log("logged out.");
     }.bind(this));
-  },
-  uploadimage: function(address, description) {
+  }
+
+  uploadimage(address, description) {
     // Do some image uploading here.
     var params = "?&address=" + encodeURIComponent(address) + "&description=" + encodeURIComponent(description) + "&username=" + this.state.username;
     $.getJSON('/api/uploadimage/'+params, function(result) {
@@ -81,9 +95,9 @@ var AppComponent = React.createClass({
         });
       }
     }.bind(this));
-    // Refresh the display area.
-  },
-  likeimage: function(imageid, username) {
+  }
+
+  likeimage(imageid, username) {
     var params = "?&imageid=" + imageid + "&username=" + username;
     $.getJSON('/api/likeimage/'+params, function(result) {
       if (result.error) {
@@ -93,8 +107,9 @@ var AppComponent = React.createClass({
         this.setState({imagearray: result});
       }
     }.bind(this));
-  },
-  unlikeimage: function(imageid, username) {
+  }
+
+  unlikeimage(imageid, username) {
     var params = "?&imageid=" + imageid + "&username=" + username;
     $.getJSON('/api/unlikeimage/'+params, function(result) {
       if (result.error) {
@@ -104,8 +119,8 @@ var AppComponent = React.createClass({
         this.setState({imagearray: result});
       }
     }.bind(this));
-  },
-  deleteimage: function(imageid) {
+  }
+  deleteimage(imageid) {
     var params = "?&imageid=" + imageid;
     $.getJSON('/api/deleteimage/'+params, function(result) {
       if (result.error) {
@@ -121,50 +136,43 @@ var AppComponent = React.createClass({
         });
       }
     }.bind(this));
-  },
-  showall: function() {
-    // showmosaic is a temp workaround for images in cards not rerendering when filtering mosaic
+  }
+
+  showall() {
     this.setState({
       showmyuploads: false,
       showmypins: false,
       showuseruploads: false
-      // showmosaic: false
     });
-    // this.setState({showmosaic: true});
-  },
-  myuploads: function() {
-    // showmosaic is a temp workaround for images in cards not rerendering when filtering mosaic
+  }
+
+  myuploads() {
     this.setState({
       showmyuploads: true,
       showuseruploads: false,
       showmypins: false
-      // showmosaic: false
     });
-    // this.setState({showmosaic: true});
-  },
-  mypins: function() {
-    // showmosaic is a temp workaround for images in cards not rerendering when filtering mosaic
+  }
+
+  mypins() {
     this.setState({
       showmyuploads: false,
       showuseruploads: false,
       showmypins: true
-      // showmosaic: false
     });
-    // this.setState({showmosaic: true});
-  },
-  useruploads: function(userid) {
+  }
+
+  useruploads(userid) {
     console.log("useruploads called for userid: " + userid);
-    // showmosaic is a temp workaround for images in cards not rerendering when filtering mosaic
     this.setState({
       showuseruploads: true,
       showmyuploads: false,
       showmypins: false,
-      // showmosaic: false,
       usertarget: userid
     });
-    // this.setState({showmosaic: true});
-  },
-  render: function() {
+  }
+
+  render() {
     return (
       <div>
         <nav className="navbar navbar-toggleable-md navbar-dark teal">
@@ -190,6 +198,7 @@ var AppComponent = React.createClass({
       </div>
     );
   }
-});
+
+}
 
 export default AppComponent;

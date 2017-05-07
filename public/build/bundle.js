@@ -9554,6 +9554,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _react = __webpack_require__(14);
 
 var _react2 = _interopRequireDefault(_react);
@@ -9576,17 +9578,37 @@ var _mosiacclass2 = _interopRequireDefault(_mosiacclass);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var AppComponent = _react2.default.createClass({
-  displayName: 'AppComponent',
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-  getInitialState: function getInitialState() {
-    var login = this.props.servertoken ? true : false;
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var AppComponent = function (_React$Component) {
+  _inherits(AppComponent, _React$Component);
+
+  function AppComponent(props) {
+    _classCallCheck(this, AppComponent);
+
+    // class extends does not auto bind this to custom methods.
+    var _this = _possibleConstructorReturn(this, (AppComponent.__proto__ || Object.getPrototypeOf(AppComponent)).call(this, props));
+
+    _this.logout = _this.logout.bind(_this);
+    _this.uploadimage = _this.uploadimage.bind(_this);
+    _this.likeimage = _this.likeimage.bind(_this);
+    _this.unlikeimage = _this.unlikeimage.bind(_this);
+    _this.showall = _this.showall.bind(_this);
+    _this.myuploads = _this.myuploads.bind(_this);
+    _this.mypins = _this.mypins.bind(_this);
+    _this.useruploads = _this.useruploads.bind(_this);
+
+    var login = _this.props.servertoken ? true : false;
     if (login) {
-      localStorage._twitter_accesstoken = this.props.servertoken;
+      localStorage._twitter_accesstoken = _this.props.servertoken;
     }
-    return {
-      username: this.props.username,
-      accesstokenserver: this.props.servertoken,
+    _this.state = {
+      username: _this.props.username,
+      accesstokenserver: _this.props.servertoken,
       accesstokenlocal: localStorage._twitter_accesstoken,
       loggedin: login,
       imagearray: [],
@@ -9596,190 +9618,203 @@ var AppComponent = _react2.default.createClass({
       showmosaic: true,
       usertarget: null
     };
-  },
-  componentDidMount: function componentDidMount() {
-    if (localStorage._twitter_accesstoken) {
-      console.log("Localstorage twitter accesstoken is not null");
-      // User is currently logged in
-      $.getJSON('/tokendetails/' + localStorage._twitter_accesstoken, function (result) {
+    return _this;
+  }
+
+  _createClass(AppComponent, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      if (localStorage._twitter_accesstoken) {
+        console.log("Localstorage twitter accesstoken is not null");
+        // User is currently logged in
+        $.getJSON('/tokendetails/' + localStorage._twitter_accesstoken, function (result) {
+          this.setState({
+            username: result.profile.username,
+            accesstokenserver: result.accessToken,
+            accesstokenlocal: localStorage._twitter_accesstoken,
+            loggedin: true,
+            imagearray: result.data,
+            userlist: Array.from(new Set(result.data.map(function (entry) {
+              return entry.postedby;
+            })))
+          });
+        }.bind(this));
+      } else {
+        $.getJSON('/api/getimages', function (result) {
+          console.log(JSON.stringify(result));
+          this.setState({
+            imagearray: result,
+            userlist: Array.from(new Set(result.map(function (entry) {
+              return entry.postedby;
+            })))
+          });
+        }.bind(this));
+      }
+    }
+  }, {
+    key: 'logout',
+    value: function logout() {
+      // Empty localstorage
+      $.getJSON('/logout/' + this.props.servertoken, function (result) {
+        localStorage.removeItem("_twitter_accesstoken");
         this.setState({
-          username: result.profile.username,
-          accesstokenserver: result.accessToken,
-          accesstokenlocal: localStorage._twitter_accesstoken,
-          loggedin: true,
-          imagearray: result.data,
-          userlist: Array.from(new Set(result.data.map(function (entry) {
-            return entry.postedby;
-          })))
+          username: null,
+          accesstokenserver: null,
+          accesstokenlocal: null,
+          loggedin: false,
+          showmyuploads: false,
+          showmypins: false
         });
-      }.bind(this));
-    } else {
-      $.getJSON('/api/getimages', function (result) {
-        console.log(JSON.stringify(result));
-        this.setState({
-          imagearray: result,
-          userlist: Array.from(new Set(result.map(function (entry) {
-            return entry.postedby;
-          })))
-        });
+        console.log("logged out.");
       }.bind(this));
     }
-  },
-  logout: function logout() {
-    // Empty localstorage
-    $.getJSON('/logout/' + this.props.servertoken, function (result) {
-      // localStorage._twitter_accesstoken = null;
-      localStorage.removeItem("_twitter_accesstoken");
+  }, {
+    key: 'uploadimage',
+    value: function uploadimage(address, description) {
+      // Do some image uploading here.
+      var params = "?&address=" + encodeURIComponent(address) + "&description=" + encodeURIComponent(description) + "&username=" + this.state.username;
+      $.getJSON('/api/uploadimage/' + params, function (result) {
+        if (result.error) {
+          console.log(result.error);
+        } else {
+          console.log("received upload reply!");
+          console.log(JSON.stringify(result));
+          this.setState({
+            imagearray: result
+          });
+        }
+      }.bind(this));
+    }
+  }, {
+    key: 'likeimage',
+    value: function likeimage(imageid, username) {
+      var params = "?&imageid=" + imageid + "&username=" + username;
+      $.getJSON('/api/likeimage/' + params, function (result) {
+        if (result.error) {
+          console.log(result.error);
+        } else {
+          console.log("received like reply!");
+          this.setState({ imagearray: result });
+        }
+      }.bind(this));
+    }
+  }, {
+    key: 'unlikeimage',
+    value: function unlikeimage(imageid, username) {
+      var params = "?&imageid=" + imageid + "&username=" + username;
+      $.getJSON('/api/unlikeimage/' + params, function (result) {
+        if (result.error) {
+          console.log(result.error);
+        } else {
+          console.log("received unlike reply!");
+          this.setState({ imagearray: result });
+        }
+      }.bind(this));
+    }
+  }, {
+    key: 'deleteimage',
+    value: function deleteimage(imageid) {
+      var params = "?&imageid=" + imageid;
+      $.getJSON('/api/deleteimage/' + params, function (result) {
+        if (result.error) {
+          console.log(result.error);
+        } else {
+          console.log("received delete reply!");
+          this.setState({
+            imagearray: result,
+            showmosaic: false
+          });
+          this.setState({
+            showmosaic: true
+          });
+        }
+      }.bind(this));
+    }
+  }, {
+    key: 'showall',
+    value: function showall() {
       this.setState({
-        username: null,
-        accesstokenserver: null,
-        accesstokenlocal: null,
-        loggedin: false,
         showmyuploads: false,
+        showmypins: false,
+        showuseruploads: false
+      });
+    }
+  }, {
+    key: 'myuploads',
+    value: function myuploads() {
+      this.setState({
+        showmyuploads: true,
+        showuseruploads: false,
         showmypins: false
       });
-      console.log("logged out.");
-    }.bind(this));
-  },
-  uploadimage: function uploadimage(address, description) {
-    // Do some image uploading here.
-    var params = "?&address=" + encodeURIComponent(address) + "&description=" + encodeURIComponent(description) + "&username=" + this.state.username;
-    $.getJSON('/api/uploadimage/' + params, function (result) {
-      if (result.error) {
-        console.log(result.error);
-      } else {
-        console.log("received upload reply!");
-        console.log(JSON.stringify(result));
-        this.setState({
-          imagearray: result
-        });
-      }
-    }.bind(this));
-    // Refresh the display area.
-  },
-  likeimage: function likeimage(imageid, username) {
-    var params = "?&imageid=" + imageid + "&username=" + username;
-    $.getJSON('/api/likeimage/' + params, function (result) {
-      if (result.error) {
-        console.log(result.error);
-      } else {
-        console.log("received like reply!");
-        this.setState({ imagearray: result });
-      }
-    }.bind(this));
-  },
-  unlikeimage: function unlikeimage(imageid, username) {
-    var params = "?&imageid=" + imageid + "&username=" + username;
-    $.getJSON('/api/unlikeimage/' + params, function (result) {
-      if (result.error) {
-        console.log(result.error);
-      } else {
-        console.log("received unlike reply!");
-        this.setState({ imagearray: result });
-      }
-    }.bind(this));
-  },
-  deleteimage: function deleteimage(imageid) {
-    var params = "?&imageid=" + imageid;
-    $.getJSON('/api/deleteimage/' + params, function (result) {
-      if (result.error) {
-        console.log(result.error);
-      } else {
-        console.log("received delete reply!");
-        this.setState({
-          imagearray: result,
-          showmosaic: false
-        });
-        this.setState({
-          showmosaic: true
-        });
-      }
-    }.bind(this));
-  },
-  showall: function showall() {
-    // showmosaic is a temp workaround for images in cards not rerendering when filtering mosaic
-    this.setState({
-      showmyuploads: false,
-      showmypins: false,
-      showuseruploads: false
-      // showmosaic: false
-    });
-    // this.setState({showmosaic: true});
-  },
-  myuploads: function myuploads() {
-    // showmosaic is a temp workaround for images in cards not rerendering when filtering mosaic
-    this.setState({
-      showmyuploads: true,
-      showuseruploads: false,
-      showmypins: false
-      // showmosaic: false
-    });
-    // this.setState({showmosaic: true});
-  },
-  mypins: function mypins() {
-    // showmosaic is a temp workaround for images in cards not rerendering when filtering mosaic
-    this.setState({
-      showmyuploads: false,
-      showuseruploads: false,
-      showmypins: true
-      // showmosaic: false
-    });
-    // this.setState({showmosaic: true});
-  },
-  useruploads: function useruploads(userid) {
-    console.log("useruploads called for userid: " + userid);
-    // showmosaic is a temp workaround for images in cards not rerendering when filtering mosaic
-    this.setState({
-      showuseruploads: true,
-      showmyuploads: false,
-      showmypins: false,
-      // showmosaic: false,
-      usertarget: userid
-    });
-    // this.setState({showmosaic: true});
-  },
-  render: function render() {
-    return _react2.default.createElement(
-      'div',
-      null,
-      _react2.default.createElement(
-        'nav',
-        { className: 'navbar navbar-toggleable-md navbar-dark teal' },
+    }
+  }, {
+    key: 'mypins',
+    value: function mypins() {
+      this.setState({
+        showmyuploads: false,
+        showuseruploads: false,
+        showmypins: true
+      });
+    }
+  }, {
+    key: 'useruploads',
+    value: function useruploads(userid) {
+      console.log("useruploads called for userid: " + userid);
+      this.setState({
+        showuseruploads: true,
+        showmyuploads: false,
+        showmypins: false,
+        usertarget: userid
+      });
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        null,
         _react2.default.createElement(
-          'div',
-          { className: 'container' },
-          _react2.default.createElement(
-            'button',
-            { className: 'navbar-toggler navbar-toggler-right', type: 'button', 'data-toggle': 'collapse', 'data-target': '#navbarNav1', 'aria-controls': 'navbarNav1', 'aria-expanded': 'false', 'aria-label': 'Toggle navigation' },
-            _react2.default.createElement('span', { className: 'navbar-toggler-icon' })
-          ),
-          _react2.default.createElement(
-            'a',
-            { className: 'navbar-brand', href: '#', onClick: this.showall },
-            _react2.default.createElement(
-              'strong',
-              null,
-              'Pinterest Clone'
-            )
-          ),
+          'nav',
+          { className: 'navbar navbar-toggleable-md navbar-dark teal' },
           _react2.default.createElement(
             'div',
-            { className: 'collapse navbar-collapse', id: 'navbarNav1' },
-            _react2.default.createElement('ul', { className: 'navbar-nav mr-auto' }),
-            this.state.userlist ? _react2.default.createElement(_browsebyuserclass2.default, { userlist: this.state.userlist, useruploadfunc: this.useruploads }) : null,
-            _react2.default.createElement(_submitclass2.default, { submitfunc: this.uploadimage, username: this.state.username }),
-            _react2.default.createElement(_dropdownclass2.default, { loggedin: this.state.loggedin, username: this.state.username, myuploadsfunc: this.myuploads, mypinsfunc: this.mypins, logoutfunc: this.logout })
+            { className: 'container' },
+            _react2.default.createElement(
+              'button',
+              { className: 'navbar-toggler navbar-toggler-right', type: 'button', 'data-toggle': 'collapse', 'data-target': '#navbarNav1', 'aria-controls': 'navbarNav1', 'aria-expanded': 'false', 'aria-label': 'Toggle navigation' },
+              _react2.default.createElement('span', { className: 'navbar-toggler-icon' })
+            ),
+            _react2.default.createElement(
+              'a',
+              { className: 'navbar-brand', href: '#', onClick: this.showall },
+              _react2.default.createElement(
+                'strong',
+                null,
+                'Pinterest Clone'
+              )
+            ),
+            _react2.default.createElement(
+              'div',
+              { className: 'collapse navbar-collapse', id: 'navbarNav1' },
+              _react2.default.createElement('ul', { className: 'navbar-nav mr-auto' }),
+              this.state.userlist ? _react2.default.createElement(_browsebyuserclass2.default, { userlist: this.state.userlist, useruploadfunc: this.useruploads }) : null,
+              _react2.default.createElement(_submitclass2.default, { submitfunc: this.uploadimage, username: this.state.username }),
+              _react2.default.createElement(_dropdownclass2.default, { loggedin: this.state.loggedin, username: this.state.username, myuploadsfunc: this.myuploads, mypinsfunc: this.mypins, logoutfunc: this.logout })
+            )
           )
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'Aligner' },
+          this.state.showmosaic && this.state.imagearray.length > 0 ? _react2.default.createElement(_mosiacclass2.default, { username: this.state.username, uploadedname: this.state.usertarget, data: this.state.imagearray, pinfunc: this.likeimage, unpinfunc: this.unlikeimage, deletefunc: this.deleteimage, myuploads: this.state.showmyuploads, mypins: this.state.showmypins, useruploads: this.state.showuseruploads }) : null
         )
-      ),
-      _react2.default.createElement(
-        'div',
-        { className: 'Aligner' },
-        this.state.showmosaic && this.state.imagearray.length > 0 ? _react2.default.createElement(_mosiacclass2.default, { username: this.state.username, uploadedname: this.state.usertarget, data: this.state.imagearray, pinfunc: this.likeimage, unpinfunc: this.unlikeimage, deletefunc: this.deleteimage, myuploads: this.state.showmyuploads, mypins: this.state.showmypins, useruploads: this.state.showuseruploads }) : null
-      )
-    );
-  }
-});
+      );
+    }
+  }]);
+
+  return AppComponent;
+}(_react2.default.Component);
 
 exports.default = AppComponent;
 
@@ -9794,44 +9829,65 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _react = __webpack_require__(14);
 
 var _react2 = _interopRequireDefault(_react);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var BrowseUserComponent = _react2.default.createClass({
-  displayName: "BrowseUserComponent",
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-  handleSelectName: function handleSelectName(username) {
-    this.props.useruploadfunc(username);
-  },
-  render: function render() {
-    // Login is a single item
-    // If logged in, display dropdown.
-    var dropdown = _react2.default.createElement(
-      "li",
-      { className: "nav-item dropdown btn-group" },
-      _react2.default.createElement(
-        "a",
-        { className: "nav-link dropdown-toggle", id: "dropdownMenu1", "data-toggle": "dropdown", "aria-haspopup": "true", "aria-expanded": "false" },
-        "Browse By User"
-      ),
-      _react2.default.createElement(
-        "div",
-        { className: "dropdown-menu dropdown", "aria-labelledby": "dropdownMenu1" },
-        this.props.userlist.map(function (username, i) {
-          return _react2.default.createElement(
-            "a",
-            { className: "dropdown-item", key: i, onClick: this.handleSelectName.bind(null, username) },
-            username
-          );
-        }.bind(this))
-      )
-    );
-    return dropdown;
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var BrowseUserComponent = function (_React$Component) {
+  _inherits(BrowseUserComponent, _React$Component);
+
+  function BrowseUserComponent() {
+    _classCallCheck(this, BrowseUserComponent);
+
+    return _possibleConstructorReturn(this, (BrowseUserComponent.__proto__ || Object.getPrototypeOf(BrowseUserComponent)).apply(this, arguments));
   }
-});
+
+  _createClass(BrowseUserComponent, [{
+    key: "handleSelectName",
+    value: function handleSelectName(username) {
+      this.props.useruploadfunc(username);
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      // Login is a single item
+      // If logged in, display dropdown.
+      var dropdown = _react2.default.createElement(
+        "li",
+        { className: "nav-item dropdown btn-group" },
+        _react2.default.createElement(
+          "a",
+          { className: "nav-link dropdown-toggle", id: "dropdownMenu1", "data-toggle": "dropdown", "aria-haspopup": "true", "aria-expanded": "false" },
+          "Browse By User"
+        ),
+        _react2.default.createElement(
+          "div",
+          { className: "dropdown-menu dropdown", "aria-labelledby": "dropdownMenu1" },
+          this.props.userlist.map(function (username, i) {
+            return _react2.default.createElement(
+              "a",
+              { className: "dropdown-item", key: i, onClick: this.handleSelectName.bind(null, username) },
+              username
+            );
+          }.bind(this))
+        )
+      );
+      return dropdown;
+    }
+  }]);
+
+  return BrowseUserComponent;
+}(_react2.default.Component);
 
 exports.default = BrowseUserComponent;
 
@@ -9846,6 +9902,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _react = __webpack_require__(14);
 
 var _react2 = _interopRequireDefault(_react);
@@ -9856,65 +9914,86 @@ var _imageclass2 = _interopRequireDefault(_imageclass);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var CardComponent = _react2.default.createClass({
-  displayName: 'CardComponent',
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-  handlePin: function handlePin(userhaspinned, id) {
-    // This function should have different properties depending on whether the user has pinned this post before.
-    if (userhaspinned) {
-      this.props.unpinfunc(id, this.props.username);
-    } else {
-      this.props.pinfunc(id, this.props.username);
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var CardComponent = function (_React$Component) {
+  _inherits(CardComponent, _React$Component);
+
+  function CardComponent() {
+    _classCallCheck(this, CardComponent);
+
+    return _possibleConstructorReturn(this, (CardComponent.__proto__ || Object.getPrototypeOf(CardComponent)).apply(this, arguments));
+  }
+
+  _createClass(CardComponent, [{
+    key: 'handlePin',
+    value: function handlePin(userhaspinned, id) {
+      // This function should have different properties depending on whether the user has pinned this post before.
+      if (userhaspinned) {
+        this.props.unpinfunc(id, this.props.username);
+      } else {
+        this.props.pinfunc(id, this.props.username);
+      }
     }
-  },
-  handleDelete: function handleDelete(imageid) {
-    // console.log("handle delete: " + imageid);
-    this.props.deletefunc(imageid);
-  },
-  render: function render() {
-    var tempObj = {
-      id: this.props.carddata._id,
-      userhaspinned: this.props.carddata.likeData.includes(this.props.username),
-      useruploaded: this.props.carddata.postedby === this.props.username,
-      data: this.props.carddata
-    };
-    var pincolor = tempObj.userhaspinned ? "btn btn-default-dark" : "btn btn-default";
-    var deletebutton = tempObj.useruploaded && this.props.showmyuploads ? _react2.default.createElement(
-      'button',
-      { className: 'btn btn-danger', onClick: this.handleDelete.bind(null, tempObj.id) },
-      _react2.default.createElement('i', { className: 'fa fa-trash-o', 'aria-hidden': 'true' })
-    ) : '';
-    return _react2.default.createElement(
-      'div',
-      { className: 'grid-item card' },
-      _react2.default.createElement(_imageclass2.default, { imageurl: this.props.carddata.link, postedby: this.props.carddata.postedby, caption: this.props.carddata.description }),
-      _react2.default.createElement(
+  }, {
+    key: 'handleDelete',
+    value: function handleDelete(imageid) {
+      // console.log("handle delete: " + imageid);
+      this.props.deletefunc(imageid);
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var tempObj = {
+        id: this.props.carddata._id,
+        userhaspinned: this.props.carddata.likeData.includes(this.props.username),
+        useruploaded: this.props.carddata.postedby === this.props.username,
+        data: this.props.carddata
+      };
+      var pincolor = tempObj.userhaspinned ? "btn btn-default-dark" : "btn btn-default";
+      var deletebutton = tempObj.useruploaded && this.props.showmyuploads ? _react2.default.createElement(
+        'button',
+        { className: 'btn btn-danger', onClick: this.handleDelete.bind(null, tempObj.id) },
+        _react2.default.createElement('i', { className: 'fa fa-trash-o', 'aria-hidden': 'true' })
+      ) : '';
+      return _react2.default.createElement(
         'div',
-        { className: 'description-row' },
+        { className: 'grid-item card' },
+        _react2.default.createElement(_imageclass2.default, { imageurl: this.props.carddata.link, postedby: this.props.carddata.postedby, caption: this.props.carddata.description }),
         _react2.default.createElement(
           'div',
-          { className: 'description-text' },
-          this.props.carddata.description,
-          _react2.default.createElement('br', null),
+          { className: 'description-row' },
           _react2.default.createElement(
             'div',
-            { className: 'subtext' },
-            '- ',
-            this.props.carddata.postedby
+            { className: 'description-text' },
+            this.props.carddata.description,
+            _react2.default.createElement('br', null),
+            _react2.default.createElement(
+              'div',
+              { className: 'subtext' },
+              '- ',
+              this.props.carddata.postedby
+            )
+          ),
+          deletebutton,
+          _react2.default.createElement(
+            'button',
+            { className: pincolor, onClick: this.handlePin.bind(null, tempObj.userhaspinned, tempObj.id), disabled: this.props.username ? false : true },
+            _react2.default.createElement('i', { className: 'fa fa-thumb-tack', 'aria-hidden': 'true' }),
+            ' ',
+            this.props.carddata.likes
           )
-        ),
-        deletebutton,
-        _react2.default.createElement(
-          'button',
-          { className: pincolor, onClick: this.handlePin.bind(null, tempObj.userhaspinned, tempObj.id), disabled: this.props.username ? false : true },
-          _react2.default.createElement('i', { className: 'fa fa-thumb-tack', 'aria-hidden': 'true' }),
-          ' ',
-          this.props.carddata.likes
         )
-      )
-    );
-  }
-});
+      );
+    }
+  }]);
+
+  return CardComponent;
+}(_react2.default.Component);
 
 exports.default = CardComponent;
 
@@ -9929,69 +10008,88 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _react = __webpack_require__(14);
 
 var _react2 = _interopRequireDefault(_react);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var DropdownComponent = _react2.default.createClass({
-  displayName: "DropdownComponent",
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-  handleMyUploads: function handleMyUploads() {
-    // myuploadsfunc
-    this.props.myuploadsfunc();
-  },
-  handleMyPins: function handleMyPins() {
-    // mypinsfunc
-    this.props.mypinsfunc();
-  },
-  render: function render() {
-    // Login is a single item
-    // If logged in, display dropdown.
-    var dropdown;
-    if (this.props.username) {
-      // <a className="dropdown-item" onClick={this.logout}>Logout</a>
-      // <a className="dropdown-item" href="/auth/google">Google+ Login</a>
-      dropdown = _react2.default.createElement(
-        "li",
-        { className: "nav-item dropdown btn-group" },
-        _react2.default.createElement(
-          "a",
-          { className: "nav-link dropdown-toggle", id: "dropdownMenu1", "data-toggle": "dropdown", "aria-haspopup": "true", "aria-expanded": "false" },
-          this.props.username
-        ),
-        _react2.default.createElement(
-          "div",
-          { className: "dropdown-menu dropdown", "aria-labelledby": "dropdownMenu1" },
-          _react2.default.createElement(
-            "a",
-            { className: "dropdown-item", onClick: this.props.mypinsfunc },
-            "Pins"
-          ),
-          _react2.default.createElement(
-            "a",
-            { className: "dropdown-item", onClick: this.props.myuploadsfunc },
-            "Submissions"
-          ),
-          _react2.default.createElement(
-            "a",
-            { className: "dropdown-item", onClick: this.props.logoutfunc },
-            "Logout"
-          )
-        )
-      );
-    } else {
-      dropdown = _react2.default.createElement(
-        "a",
-        { className: "nav-link", href: "/auth/twitter" },
-        "Login ",
-        _react2.default.createElement("i", { className: "fa fa-twitter", "aria-hidden": "true" })
-      );
-    }
-    return dropdown;
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var DropdownComponent = function (_React$Component) {
+  _inherits(DropdownComponent, _React$Component);
+
+  function DropdownComponent() {
+    _classCallCheck(this, DropdownComponent);
+
+    return _possibleConstructorReturn(this, (DropdownComponent.__proto__ || Object.getPrototypeOf(DropdownComponent)).apply(this, arguments));
   }
-});
+
+  _createClass(DropdownComponent, [{
+    key: "handleMyUploads",
+    value: function handleMyUploads() {
+      this.props.myuploadsfunc();
+    }
+  }, {
+    key: "handleMyPins",
+    value: function handleMyPins() {
+      this.props.mypinsfunc();
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      // Login is a single item
+      // If logged in, display dropdown.
+      var dropdown;
+      if (this.props.username) {
+        dropdown = _react2.default.createElement(
+          "li",
+          { className: "nav-item dropdown btn-group" },
+          _react2.default.createElement(
+            "a",
+            { className: "nav-link dropdown-toggle", id: "dropdownMenu1", "data-toggle": "dropdown", "aria-haspopup": "true", "aria-expanded": "false" },
+            this.props.username
+          ),
+          _react2.default.createElement(
+            "div",
+            { className: "dropdown-menu dropdown", "aria-labelledby": "dropdownMenu1" },
+            _react2.default.createElement(
+              "a",
+              { className: "dropdown-item", onClick: this.props.mypinsfunc },
+              "Pins"
+            ),
+            _react2.default.createElement(
+              "a",
+              { className: "dropdown-item", onClick: this.props.myuploadsfunc },
+              "Submissions"
+            ),
+            _react2.default.createElement(
+              "a",
+              { className: "dropdown-item", onClick: this.props.logoutfunc },
+              "Logout"
+            )
+          )
+        );
+      } else {
+        dropdown = _react2.default.createElement(
+          "a",
+          { className: "nav-link", href: "/auth/twitter" },
+          "Login ",
+          _react2.default.createElement("i", { className: "fa fa-twitter", "aria-hidden": "true" })
+        );
+      }
+      return dropdown;
+    }
+  }]);
+
+  return DropdownComponent;
+}(_react2.default.Component);
 
 exports.default = DropdownComponent;
 
@@ -10006,32 +10104,51 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _react = __webpack_require__(14);
 
 var _react2 = _interopRequireDefault(_react);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var PLACEHOLDER_IMAGE = "/images/placeholder.gif";
 
-var ImageComponent = _react2.default.createClass({
-  displayName: "ImageComponent",
+var ImageComponent = function (_React$Component) {
+  _inherits(ImageComponent, _React$Component);
 
-  render: function render() {
-    // Display lightbox on click.
-    // return <img src={this.props.imageurl} onError={(e)=>{e.target.src=PLACEHOLDER_IMAGE}}/>;
-    // Lightbox source downloaded from http://lokeshdhakar.com/projects/lightbox2/
-    // Placeholder image courtesy of http://www.jennybeaumont.com/post-placeholders/
-    var caption = this.props.caption + " - " + this.props.postedby;
-    return _react2.default.createElement(
-      "a",
-      { href: this.props.imageurl, "data-lightbox": this.props.imageurl, "data-title": caption },
-      _react2.default.createElement("img", { src: this.props.imageurl, onError: function onError(e) {
-          e.target.src = PLACEHOLDER_IMAGE;
-        } })
-    );
+  function ImageComponent() {
+    _classCallCheck(this, ImageComponent);
+
+    return _possibleConstructorReturn(this, (ImageComponent.__proto__ || Object.getPrototypeOf(ImageComponent)).apply(this, arguments));
   }
-});
+
+  _createClass(ImageComponent, [{
+    key: "render",
+    value: function render() {
+      // Display lightbox on click.
+      // return <img src={this.props.imageurl} onError={(e)=>{e.target.src=PLACEHOLDER_IMAGE}}/>;
+      // Lightbox source downloaded from http://lokeshdhakar.com/projects/lightbox2/
+      // Placeholder image courtesy of http://www.jennybeaumont.com/post-placeholders/
+      var caption = this.props.caption + " - " + this.props.postedby;
+      return _react2.default.createElement(
+        "a",
+        { href: this.props.imageurl, "data-lightbox": this.props.imageurl, "data-title": caption },
+        _react2.default.createElement("img", { src: this.props.imageurl, onError: function onError(e) {
+            e.target.src = PLACEHOLDER_IMAGE;
+          } })
+      );
+    }
+  }]);
+
+  return ImageComponent;
+}(_react2.default.Component);
 
 exports.default = ImageComponent;
 
@@ -10046,6 +10163,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _react = __webpack_require__(14);
 
 var _react2 = _interopRequireDefault(_react);
@@ -10056,81 +10175,98 @@ var _cardclass2 = _interopRequireDefault(_cardclass);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var MosaicComponent = _react2.default.createClass({
-  displayName: 'MosaicComponent',
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-  render: function render() {
-    // Filter here for even distribution.
-    // My uploads
-    // My Pins
-    // Target user uploads
-    var datacopy = this.props.data.slice();
-    datacopy = datacopy.filter(function (carddata) {
-      if (this.props.mypins && !carddata.likeData.includes(this.props.username)) {
-        return false;
-      } else if (this.props.myuploads && carddata.postedby !== this.props.username) {
-        return false;
-      } else if (this.props.useruploads && carddata.postedby !== this.props.uploadedname) {
-        return false;
-      } else {
-        return true;
-      }
-    }.bind(this));
-    var masonrytemp = { '0': [0, []], '1': [0, []], '2': [0, []], '3': [0, []], '4': [0, []] };
-    // Push into the column with the smallest height.
-    for (var i = 0; i < datacopy.length; i++) {
-      var heights = Object.keys(masonrytemp).map(function (key) {
-        return masonrytemp[key][0];
-      });
-      var minheightindex = 0;
-      var value = heights[0];
-      for (var j = 1; j < heights.length; j++) {
-        if (heights[j] < value) {
-          value = heights[j];
-          minheightindex = j;
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var MosaicComponent = function (_React$Component) {
+  _inherits(MosaicComponent, _React$Component);
+
+  function MosaicComponent() {
+    _classCallCheck(this, MosaicComponent);
+
+    return _possibleConstructorReturn(this, (MosaicComponent.__proto__ || Object.getPrototypeOf(MosaicComponent)).apply(this, arguments));
+  }
+
+  _createClass(MosaicComponent, [{
+    key: 'render',
+    value: function render() {
+      // Filter here for even distribution.
+      // My uploads
+      // My Pins
+      // Target user uploads
+      var datacopy = this.props.data.slice();
+      datacopy = datacopy.filter(function (carddata) {
+        if (this.props.mypins && !carddata.likeData.includes(this.props.username)) {
+          return false;
+        } else if (this.props.myuploads && carddata.postedby !== this.props.username) {
+          return false;
+        } else if (this.props.useruploads && carddata.postedby !== this.props.uploadedname) {
+          return false;
+        } else {
+          return true;
+        }
+      }.bind(this));
+      var masonrytemp = { '0': [0, []], '1': [0, []], '2': [0, []], '3': [0, []], '4': [0, []] };
+      // Push into the column with the smallest height.
+      for (var i = 0; i < datacopy.length; i++) {
+        var heights = Object.keys(masonrytemp).map(function (key) {
+          return masonrytemp[key][0];
+        });
+        var minheightindex = 0;
+        var value = heights[0];
+        for (var j = 1; j < heights.length; j++) {
+          if (heights[j] < value) {
+            value = heights[j];
+            minheightindex = j;
+          }
+        }
+        // Insert into this column. Update the height value for this column.
+        masonrytemp[minheightindex][1].push(_react2.default.createElement(_cardclass2.default, { carddata: datacopy[i], key: i, username: this.props.username, uploadedname: this.props.uploadedname, pinfunc: this.props.pinfunc, unpinfunc: this.props.unpinfunc, deletefunc: this.props.deletefunc, showmypins: this.props.mypins, showmyuploads: this.props.myuploads, showuseruploads: this.props.useruploads }));
+        if (datacopy[i].height) {
+          masonrytemp[minheightindex][0] += datacopy[i].height;
+        } else {
+          // Dimensions of the placeholder image.
+          masonrytemp[minheightindex][0] += 133.69 / 252.84;
         }
       }
-      // Insert into this column. Update the height value for this column.
-      masonrytemp[minheightindex][1].push(_react2.default.createElement(_cardclass2.default, { carddata: datacopy[i], key: i, username: this.props.username, uploadedname: this.props.uploadedname, pinfunc: this.props.pinfunc, unpinfunc: this.props.unpinfunc, deletefunc: this.props.deletefunc, showmypins: this.props.mypins, showmyuploads: this.props.myuploads, showuseruploads: this.props.useruploads }));
-      if (datacopy[i].height) {
-        masonrytemp[minheightindex][0] += datacopy[i].height;
-      } else {
-        // Dimensions of the placeholder image.
-        masonrytemp[minheightindex][0] += 133.69 / 252.84;
-      }
-    }
 
-    return _react2.default.createElement(
-      'div',
-      { className: 'grid-by-columns' },
-      _react2.default.createElement(
+      return _react2.default.createElement(
         'div',
-        { className: 'grid-by-rows' },
-        masonrytemp[0][1]
-      ),
-      _react2.default.createElement(
-        'div',
-        { className: 'grid-by-rows' },
-        masonrytemp[1][1]
-      ),
-      _react2.default.createElement(
-        'div',
-        { className: 'grid-by-rows' },
-        masonrytemp[2][1]
-      ),
-      _react2.default.createElement(
-        'div',
-        { className: 'grid-by-rows' },
-        masonrytemp[3][1]
-      ),
-      _react2.default.createElement(
-        'div',
-        { className: 'grid-by-rows' },
-        masonrytemp[4][1]
-      )
-    );
-  }
-});
+        { className: 'grid-by-columns' },
+        _react2.default.createElement(
+          'div',
+          { className: 'grid-by-rows' },
+          masonrytemp[0][1]
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'grid-by-rows' },
+          masonrytemp[1][1]
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'grid-by-rows' },
+          masonrytemp[2][1]
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'grid-by-rows' },
+          masonrytemp[3][1]
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'grid-by-rows' },
+          masonrytemp[4][1]
+        )
+      );
+    }
+  }]);
+
+  return MosaicComponent;
+}(_react2.default.Component);
 
 exports.default = MosaicComponent;
 
@@ -10145,93 +10281,125 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _react = __webpack_require__(14);
 
 var _react2 = _interopRequireDefault(_react);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var SubmitImageComponent = _react2.default.createClass({
-  displayName: 'SubmitImageComponent',
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-  getInitialState: function getInitialState() {
-    return {
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var SubmitImageComponent = function (_React$Component) {
+  _inherits(SubmitImageComponent, _React$Component);
+
+  function SubmitImageComponent(props) {
+    _classCallCheck(this, SubmitImageComponent);
+
+    // class extends does not auto bind this to custom methods.
+    var _this = _possibleConstructorReturn(this, (SubmitImageComponent.__proto__ || Object.getPrototypeOf(SubmitImageComponent)).call(this, props));
+
+    _this.handleSubmit = _this.handleSubmit.bind(_this);
+    _this.handlechangeaddress = _this.handlechangeaddress.bind(_this);
+    _this.handlechangedescription = _this.handlechangedescription.bind(_this);
+
+    _this.state = {
       address: '',
       description: ''
     };
-  },
-  isUrlValid: function isUrlValid(url) {
-    // url validation courtesy of http://stackoverflow.com/questions/2723140/validating-url-with-jquery-without-the-validate-plugin
-    return (/^(https?|s?ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i.test(url)
-    );
-  },
-  handleSubmit: function handleSubmit() {
-    // Check if address ends in jpg or png
-    if (['.jpg', '.png'].includes(this.state.address.slice(this.state.address.length - 4, this.state.address.length))) {
-      // Check for valid url
-      if (this.isUrlValid(this.state.address)) {
-        if ('http:' === this.state.address.slice(0, 5).toLowerCase()) {
-          var description = this.state.description === '' ? 'No description' : this.state.description;
-          this.props.submitfunc(this.state.address.slice(), description);
-          this.setState({
-            address: '',
-            description: ''
-          });
+    return _this;
+  }
+
+  _createClass(SubmitImageComponent, [{
+    key: 'isUrlValid',
+    value: function isUrlValid(url) {
+      // url validation courtesy of http://stackoverflow.com/questions/2723140/validating-url-with-jquery-without-the-validate-plugin
+      return (/^(https?|s?ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i.test(url)
+      );
+    }
+  }, {
+    key: 'handleSubmit',
+    value: function handleSubmit() {
+      // Check if address ends in jpg or png
+      if (['.jpg', '.png'].includes(this.state.address.slice(this.state.address.length - 4, this.state.address.length))) {
+        // Check for valid url
+        if (this.isUrlValid(this.state.address)) {
+          if ('http:' === this.state.address.slice(0, 5).toLowerCase()) {
+            var description = this.state.description === '' ? 'No description' : this.state.description;
+            this.props.submitfunc(this.state.address.slice(), description);
+            this.setState({
+              address: '',
+              description: ''
+            });
+          } else {
+            alert('Your url is not valid');
+          }
         } else {
           alert('Your url is not valid');
         }
       } else {
-        alert('Your url is not valid');
+        alert('Your image is not of an accepted format');
       }
-    } else {
-      alert('Your image is not of an accepted format');
     }
-  },
-  handlechangeaddress: function handlechangeaddress(event) {
-    this.setState({ address: event.target.value });
-  },
-  handlechangedescription: function handlechangedescription(event) {
-    this.setState({ description: event.target.value });
-  },
-  render: function render() {
-    var dropdown;
-    if (this.props.username) {
-      // <a className="dropdown-item" onClick={this.logout}>Logout</a>
-      // <a className="dropdown-item" href="/auth/google">Google+ Login</a>
-      // <a className="dropdown-item">Dropdown form will go here.</a>
-      dropdown = _react2.default.createElement(
-        'li',
-        { className: 'nav-item dropdown btn-group' },
-        _react2.default.createElement(
-          'a',
-          { className: 'nav-link dropdown-toggle', id: 'dropdownMenu1', 'data-toggle': 'dropdown', 'aria-haspopup': 'true', 'aria-expanded': 'false' },
-          'Post Image'
-        ),
-        _react2.default.createElement(
-          'div',
-          { className: 'dropdown-menu dropdown dropdownsubmit', 'aria-labelledby': 'dropdownMenu1' },
-          _react2.default.createElement('input', { type: 'url', placeholder: 'Link it!', value: this.state.address, onChange: this.handlechangeaddress }),
-          _react2.default.createElement('input', { type: 'text', placeholder: 'Describe it!', value: this.state.description, onChange: this.handlechangedescription }),
+  }, {
+    key: 'handlechangeaddress',
+    value: function handlechangeaddress(event) {
+      this.setState({ address: event.target.value });
+    }
+  }, {
+    key: 'handlechangedescription',
+    value: function handlechangedescription(event) {
+      this.setState({ description: event.target.value });
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var dropdown;
+      if (this.props.username) {
+        // <a className="dropdown-item" onClick={this.logout}>Logout</a>
+        // <a className="dropdown-item" href="/auth/google">Google+ Login</a>
+        // <a className="dropdown-item">Dropdown form will go here.</a>
+        dropdown = _react2.default.createElement(
+          'li',
+          { className: 'nav-item dropdown btn-group' },
           _react2.default.createElement(
-            'button',
-            { className: 'btn btn-default', onClick: this.handleSubmit },
-            'Post it!'
+            'a',
+            { className: 'nav-link dropdown-toggle', id: 'dropdownMenu1', 'data-toggle': 'dropdown', 'aria-haspopup': 'true', 'aria-expanded': 'false' },
+            'Post Image'
           ),
           _react2.default.createElement(
-            'p',
-            { className: 'subtext' },
-            'Only JPG and PNG are accepted',
-            _react2.default.createElement('br', null),
-            'Only HTTP (vs HTTPS) accepted'
+            'div',
+            { className: 'dropdown-menu dropdown dropdownsubmit', 'aria-labelledby': 'dropdownMenu1' },
+            _react2.default.createElement('input', { type: 'url', placeholder: 'Link it!', value: this.state.address, onChange: this.handlechangeaddress }),
+            _react2.default.createElement('input', { type: 'text', placeholder: 'Describe it!', value: this.state.description, onChange: this.handlechangedescription }),
+            _react2.default.createElement(
+              'button',
+              { className: 'btn btn-default', onClick: this.handleSubmit },
+              'Post it!'
+            ),
+            _react2.default.createElement(
+              'p',
+              { className: 'subtext' },
+              'Only JPG and PNG are accepted',
+              _react2.default.createElement('br', null),
+              'Only HTTP (vs HTTPS) accepted'
+            )
           )
-        )
-      );
-    } else {
-      dropdown = null;
+        );
+      } else {
+        dropdown = null;
+      }
+      return dropdown;
     }
-    return dropdown;
-  }
-});
+  }]);
+
+  return SubmitImageComponent;
+}(_react2.default.Component);
 
 exports.default = SubmitImageComponent;
 

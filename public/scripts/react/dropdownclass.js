@@ -1,21 +1,20 @@
 import React from 'react';
 
-var DropdownComponent = React.createClass({
-  handleMyUploads: function() {
-// myuploadsfunc
+class DropdownComponent extends React.Component{
+
+  handleMyUploads() {
     this.props.myuploadsfunc();
-  },
-  handleMyPins: function() {
-// mypinsfunc
+  }
+
+  handleMyPins() {
     this.props.mypinsfunc();
-  },
-  render: function() {
+  }
+
+  render() {
     // Login is a single item
     // If logged in, display dropdown.
     var dropdown;
     if (this.props.username) {
-      // <a className="dropdown-item" onClick={this.logout}>Logout</a>
-      // <a className="dropdown-item" href="/auth/google">Google+ Login</a>
       dropdown = (
         <li className="nav-item dropdown btn-group">
             <a className="nav-link dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{this.props.username}</a>
@@ -33,6 +32,7 @@ var DropdownComponent = React.createClass({
     }
     return dropdown;
   }
-})
+
+}
 
 export default DropdownComponent;

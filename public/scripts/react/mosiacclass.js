@@ -1,8 +1,8 @@
 import React from 'react';
 import CardComponent from './cardclass';
 
-var MosaicComponent = React.createClass({
-  render: function() {
+class MosaicComponent extends React.Component{
+  render() {
     // Filter here for even distribution.
     // My uploads
     // My Pins
@@ -55,6 +55,6 @@ var MosaicComponent = React.createClass({
       </div>
       );
     }
-})
+}
 
 export default MosaicComponent;
