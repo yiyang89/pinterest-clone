@@ -13,6 +13,7 @@ class AppComponent extends React.Component {
     this.uploadimage = this.uploadimage.bind(this);
     this.likeimage = this.likeimage.bind(this);
     this.unlikeimage = this.unlikeimage.bind(this);
+    this.deleteimage = this.deleteimage.bind(this);
     this.showall = this.showall.bind(this);
     this.myuploads = this.myuploads.bind(this);
     this.mypins = this.mypins.bind(this);
@@ -89,7 +90,6 @@ class AppComponent extends React.Component {
         alert("Error: " + result.error);
       } else {
         console.log("received upload reply!");
-        console.log(JSON.stringify(result));
         this.setState({
           imagearray: result
         });

@@ -9597,6 +9597,7 @@ var AppComponent = function (_React$Component) {
     _this.uploadimage = _this.uploadimage.bind(_this);
     _this.likeimage = _this.likeimage.bind(_this);
     _this.unlikeimage = _this.unlikeimage.bind(_this);
+    _this.deleteimage = _this.deleteimage.bind(_this);
     _this.showall = _this.showall.bind(_this);
     _this.myuploads = _this.myuploads.bind(_this);
     _this.mypins = _this.mypins.bind(_this);
@@ -9678,7 +9679,6 @@ var AppComponent = function (_React$Component) {
           alert("Error: " + result.error);
         } else {
           console.log("received upload reply!");
-          console.log(JSON.stringify(result));
           this.setState({
             imagearray: result
           });
