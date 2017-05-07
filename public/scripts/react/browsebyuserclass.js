@@ -1,6 +1,12 @@
 import React from 'react';
 
 class BrowseUserComponent extends React.Component{
+
+  constructor(props) {
+    super(props);
+    this.handleSelectName = this.handleSelectName.bind(this);
+  }
+
   handleSelectName(username) {
     this.props.useruploadfunc(username);
   }

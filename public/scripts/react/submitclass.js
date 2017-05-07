@@ -22,22 +22,16 @@ class SubmitImageComponent extends React.Component{
   }
 
   handleSubmit() {
-    // Check if address ends in jpg or png
-    // if (['.jpg','.png'].includes(this.state.address.slice(this.state.address.length -4, this.state.address.length))) {
-      // Check for valid url
-      if (this.isUrlValid(this.state.address)) {
-        var description = this.state.description === ''? 'No description' : this.state.description;
-        this.props.submitfunc(this.state.address.slice(), description);
-        this.setState({
-          address: '',
-          description: ''
-        })
-      } else {
-        alert('Your url is not valid');
-      }
-    // } else {
-    //   alert('Your image is not of an accepted format');
-    // }
+    if (this.isUrlValid(this.state.address)) {
+      var description = this.state.description === ''? 'No description' : this.state.description;
+      this.props.submitfunc(this.state.address.slice(), description);
+      this.setState({
+        address: '',
+        description: ''
+      })
+    } else {
+      alert('Your url is not valid');
+    }
   }
 
   handlechangeaddress(event) {
@@ -60,8 +54,7 @@ class SubmitImageComponent extends React.Component{
             <div className="dropdown-menu dropdown dropdownsubmit" aria-labelledby="dropdownMenu1">
               <input type="url" placeholder="Link it!" value={this.state.address} onChange={this.handlechangeaddress} />
               <input type="text" placeholder="Describe it!" value={this.state.description} onChange={this.handlechangedescription} />
-              <button className="btn btn-default" onClick={this.handleSubmit}>Post it!</button>
-              <p className="subtext">Only JPG and PNG are accepted<br/>Only HTTP (vs HTTPS) accepted</p>
+              <button className="btn btn-default" style={{marginBottom: "1rem"}} onClick={this.handleSubmit}>Post it!</button>
             </div>
         </li>
       );

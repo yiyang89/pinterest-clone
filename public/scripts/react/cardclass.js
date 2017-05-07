@@ -2,6 +2,13 @@ import React from 'react';
 import ImageComponent from './imageclass';
 
 class CardComponent extends React.Component{
+
+  constructor(props) {
+    super(props);
+    this.handlePin = this.handlePin.bind(this);
+    this.handleDelete = this.handleDelete.bind(this);
+  }
+
   handlePin(userhaspinned, id) {
     // This function should have different properties depending on whether the user has pinned this post before.
     if (userhaspinned) {

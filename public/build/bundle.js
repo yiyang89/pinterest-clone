@@ -9846,10 +9846,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var BrowseUserComponent = function (_React$Component) {
   _inherits(BrowseUserComponent, _React$Component);
 
-  function BrowseUserComponent() {
+  function BrowseUserComponent(props) {
     _classCallCheck(this, BrowseUserComponent);
 
-    return _possibleConstructorReturn(this, (BrowseUserComponent.__proto__ || Object.getPrototypeOf(BrowseUserComponent)).apply(this, arguments));
+    var _this = _possibleConstructorReturn(this, (BrowseUserComponent.__proto__ || Object.getPrototypeOf(BrowseUserComponent)).call(this, props));
+
+    _this.handleSelectName = _this.handleSelectName.bind(_this);
+    return _this;
   }
 
   _createClass(BrowseUserComponent, [{
@@ -9923,10 +9926,14 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var CardComponent = function (_React$Component) {
   _inherits(CardComponent, _React$Component);
 
-  function CardComponent() {
+  function CardComponent(props) {
     _classCallCheck(this, CardComponent);
 
-    return _possibleConstructorReturn(this, (CardComponent.__proto__ || Object.getPrototypeOf(CardComponent)).apply(this, arguments));
+    var _this = _possibleConstructorReturn(this, (CardComponent.__proto__ || Object.getPrototypeOf(CardComponent)).call(this, props));
+
+    _this.handlePin = _this.handlePin.bind(_this);
+    _this.handleDelete = _this.handleDelete.bind(_this);
+    return _this;
   }
 
   _createClass(CardComponent, [{
@@ -10325,9 +10332,6 @@ var SubmitImageComponent = function (_React$Component) {
   }, {
     key: 'handleSubmit',
     value: function handleSubmit() {
-      // Check if address ends in jpg or png
-      // if (['.jpg','.png'].includes(this.state.address.slice(this.state.address.length -4, this.state.address.length))) {
-      // Check for valid url
       if (this.isUrlValid(this.state.address)) {
         var description = this.state.description === '' ? 'No description' : this.state.description;
         this.props.submitfunc(this.state.address.slice(), description);
@@ -10338,9 +10342,6 @@ var SubmitImageComponent = function (_React$Component) {
       } else {
         alert('Your url is not valid');
       }
-      // } else {
-      //   alert('Your image is not of an accepted format');
-      // }
     }
   }, {
     key: 'handlechangeaddress',
@@ -10375,15 +10376,8 @@ var SubmitImageComponent = function (_React$Component) {
             _react2.default.createElement('input', { type: 'text', placeholder: 'Describe it!', value: this.state.description, onChange: this.handlechangedescription }),
             _react2.default.createElement(
               'button',
-              { className: 'btn btn-default', onClick: this.handleSubmit },
+              { className: 'btn btn-default', style: { marginBottom: "1rem" }, onClick: this.handleSubmit },
               'Post it!'
-            ),
-            _react2.default.createElement(
-              'p',
-              { className: 'subtext' },
-              'Only JPG and PNG are accepted',
-              _react2.default.createElement('br', null),
-              'Only HTTP (vs HTTPS) accepted'
             )
           )
         );
