@@ -8,10 +8,17 @@ var sizeof = require('image-size');
 var urlparse = require('url');
 var http = require('http');
 var mongodb = require('mongodb');
+var cloudinary = require('cloudinary');
 var MongoClient = mongodb.MongoClient;
 // SET THIS TO A DB ON MLAB FOR DEPLOYMENT.
 var url = process.env.MONGO_ADDRESS;
 var mongo;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 app.use(session({
   secret: 'keyboard cat',
@@ -45,14 +52,8 @@ passport.use(new TwitterStrategy({
   passReqToCallback   : true
   },
   function(request, token, tokenSecret, profile, done) {
-    // Stuff to do after verified.
-    // console.log(JSON.stringify(profile));
-    // console.log("PROFILE: " + profile);
-    // console.log("TOKEN: " + JSON.stringify(token));
-    // console.log("TOKEN SECRET: " + JSON.stringify(tokenSecret));
     console.log("A user has logged in");
     // Store data in mongo collection
-    // console.log(done);
     mongowrap.saveToken(mongo, token, profile, function(err, result) {
       if (err) {
         console.log(err);
