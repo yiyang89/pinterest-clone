@@ -1,0 +1,21 @@
+cloudinary success:
+{"public_id":"ygry5jrjgrcsaoh8ywsy",
+"version":1494171953,
+"signature":"060ab405086b3ffa9328907ccb20e609420e9430",
+"width":240,
+"height":135,
+"format":"jpg",
+"resource_type":"image",
+"created_at":"2017-05-07T15:45:53Z",
+"tags":[],
+"bytes":5406,
+"type":"upload",
+"etag":"f3e78334f04eb2468dcfbea03ab7a5ff",
+"url":"http://res.cloudinary.com/yiyang/image/upload/v1494171953/ygry5jrjgrcsaoh8ywsy.jpg",
+"secure_url":"https://res.cloudinary.com/yiyang/image/upload/v1494171953/ygry5jrjgrcsaoh8ywsy.jpg",
+"original_filename":"48631_98a2_3"}
+
+cloudinary error (will also deliver error if link does not point to an image):
+{"error":
+{"message":"Error in loading http://checkingforbroken.jpg - 503 Service Unavailable",
+"http_code":400}}

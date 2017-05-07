@@ -23,25 +23,21 @@ class SubmitImageComponent extends React.Component{
 
   handleSubmit() {
     // Check if address ends in jpg or png
-    if (['.jpg','.png'].includes(this.state.address.slice(this.state.address.length -4, this.state.address.length))) {
+    // if (['.jpg','.png'].includes(this.state.address.slice(this.state.address.length -4, this.state.address.length))) {
       // Check for valid url
       if (this.isUrlValid(this.state.address)) {
-        if ('http:' === this.state.address.slice(0, 5).toLowerCase()) {
-          var description = this.state.description === ''? 'No description' : this.state.description;
-          this.props.submitfunc(this.state.address.slice(), description);
-          this.setState({
-            address: '',
-            description: ''
-          })
-        } else {
-          alert('Your url is not valid');
-        }
+        var description = this.state.description === ''? 'No description' : this.state.description;
+        this.props.submitfunc(this.state.address.slice(), description);
+        this.setState({
+          address: '',
+          description: ''
+        })
       } else {
         alert('Your url is not valid');
       }
-    } else {
-      alert('Your image is not of an accepted format');
-    }
+    // } else {
+    //   alert('Your image is not of an accepted format');
+    // }
   }
 
   handlechangeaddress(event) {

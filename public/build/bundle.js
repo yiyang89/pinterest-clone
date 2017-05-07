@@ -9675,7 +9675,7 @@ var AppComponent = function (_React$Component) {
       var params = "?&address=" + encodeURIComponent(address) + "&description=" + encodeURIComponent(description) + "&username=" + this.state.username;
       $.getJSON('/api/uploadimage/' + params, function (result) {
         if (result.error) {
-          console.log(result.error);
+          alert("Error: " + result.error);
         } else {
           console.log("received upload reply!");
           console.log(JSON.stringify(result));
@@ -10326,25 +10326,21 @@ var SubmitImageComponent = function (_React$Component) {
     key: 'handleSubmit',
     value: function handleSubmit() {
       // Check if address ends in jpg or png
-      if (['.jpg', '.png'].includes(this.state.address.slice(this.state.address.length - 4, this.state.address.length))) {
-        // Check for valid url
-        if (this.isUrlValid(this.state.address)) {
-          if ('http:' === this.state.address.slice(0, 5).toLowerCase()) {
-            var description = this.state.description === '' ? 'No description' : this.state.description;
-            this.props.submitfunc(this.state.address.slice(), description);
-            this.setState({
-              address: '',
-              description: ''
-            });
-          } else {
-            alert('Your url is not valid');
-          }
-        } else {
-          alert('Your url is not valid');
-        }
+      // if (['.jpg','.png'].includes(this.state.address.slice(this.state.address.length -4, this.state.address.length))) {
+      // Check for valid url
+      if (this.isUrlValid(this.state.address)) {
+        var description = this.state.description === '' ? 'No description' : this.state.description;
+        this.props.submitfunc(this.state.address.slice(), description);
+        this.setState({
+          address: '',
+          description: ''
+        });
       } else {
-        alert('Your image is not of an accepted format');
+        alert('Your url is not valid');
       }
+      // } else {
+      //   alert('Your image is not of an accepted format');
+      // }
     }
   }, {
     key: 'handlechangeaddress',

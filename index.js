@@ -91,38 +91,27 @@ app.get('/api/getimages', function(request,response) {
 })
 
 app.get('/api/uploadimage/', function(request, response) {
-  // request.query will contain: the link, the description, the username
-  console.log("In upload image API call");
-  console.log(request.query.address);
-  console.log(request.query.description);
-  console.log(request.query.username);
-  // Get imagesize.
-  var options = urlparse.parse(request.query.address);
-  http.get(options, function (httpresponse) {
-    var chunks = [];
-    httpresponse.on('data', function (chunk) {
-      chunks.push(chunk);
-    }).on('end', function() {
-      var buffer = Buffer.concat(chunks);
-      // Returns something like { height: 350, width: 590, type: 'jpg' }
-      // console.log(sizeof(buffer));
-      var dimensions = sizeof(buffer);
-      // Format the storage object:
+  // Attempt upload to cloudinary
+  console.log("Attempting upload of " + request.query.address + " to cloudinary by user " + request.query.username);
+  cloudinary.uploader.upload(request.query.address, function(result) {
+    if (result.error) {
+      response.send({error: result.error.message});
+    } else {
+      // Form object for storage into mongo:
       var storageObject = {
-        "postedby": request.query.username,
-        // "postedby": "bobinjection",
-        "height": dimensions.height / dimensions.width,
-        "description": request.query.description,
-        "link": request.query.address,
-        "likes": 0,
-        "likeData": []
-      }
+        postedby: request.query.username,
+        height: result.height / result.width,
+        description: request.query.description,
+        link: result.url,
+        likes: 0,
+        likeData: []
+      };
       mongowrap.uploadimage(mongo, storageObject, function(err, result) {
         if (err) {
-          console.log("Error uploading image: "+ err);
-          response.send({"error":err});
+          console.log("Error storing image to mongo: "+err);
+          response.send({error: "Encountered an error storing the image to mongodb"});
         } else {
-          // Fetch updated image list and return to front.
+          // Return an updated imagelist to front.
           mongowrap.getimages(mongo, function(err, result) {
             if (err) {
               console.log("Error getting images: "+ err);
@@ -133,35 +122,8 @@ app.get('/api/uploadimage/', function(request, response) {
           })
         }
       })
-    })
-  }).on('error', function(e) {
-    console.log("Error with image get: " + e);
-    var storageObject = {
-      "postedby": request.query.username,
-      // "postedby": "bobinjection",
-      "height": null,
-      "description": request.query.description,
-      "link": request.query.address,
-      "likes": 0,
-      "likeData": []
-    };
-    mongowrap.uploadimage(mongo, storageObject, function(err, result) {
-      if (err) {
-        console.log("Error uploading image: "+ err);
-        response.send({"error":err});
-      } else {
-        // Fetch updated image list and return to front.
-        mongowrap.getimages(mongo, function(err, result) {
-          if (err) {
-            console.log("Error getting images: "+ err);
-            response.send({"error":err});
-          } else {
-            response.send(result);
-          }
-        })
-      }
-    })
-  });
+    }
+  })
 })
 
 app.get('/api/likeimage/', function(request, response) {

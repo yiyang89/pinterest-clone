@@ -86,7 +86,7 @@ class AppComponent extends React.Component {
     var params = "?&address=" + encodeURIComponent(address) + "&description=" + encodeURIComponent(description) + "&username=" + this.state.username;
     $.getJSON('/api/uploadimage/'+params, function(result) {
       if (result.error) {
-        console.log(result.error);
+        alert("Error: " + result.error);
       } else {
         console.log("received upload reply!");
         console.log(JSON.stringify(result));
