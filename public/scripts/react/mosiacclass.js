@@ -19,7 +19,21 @@ class MosaicComponent extends React.Component{
           return true;
         }
     }.bind(this))
-    var masonrytemp = {'0': [0, []], '1':[0, []], '2':[0, []], '3':[0, []], '4': [0, []]};
+    var numcolumns;
+    if (document.body.clientWidth < 800) {
+      console.log("mobile resolution detected");
+      console.log("viewport width: " + document.body.clientWidth);
+      numcolumns = 2;
+    } else {
+      console.log("mobile resolution not detected");
+      console.log("viewport width: " + document.body.clientWidth);
+      numcolumns = 5;
+    }
+    // var masonrytemp = {'0': [0, []], '1':[0, []], '2':[0, []], '3':[0, []], '4': [0, []]};
+    var masonrytemp = {};
+    for (var i = 0; i < numcolumns; i++) {
+      masonrytemp[i.toString()] = [0, []];
+    }
     // Push into the column with the smallest height.
     for (var i = 0; i < datacopy.length; i++) {
       var heights = Object.keys(masonrytemp).map(function(key) {
@@ -47,11 +61,9 @@ class MosaicComponent extends React.Component{
 
     return (
       <div className="grid-by-columns">
-        <div className="grid-by-rows">{masonrytemp[0][1]}</div>
-        <div className="grid-by-rows">{masonrytemp[1][1]}</div>
-        <div className="grid-by-rows">{masonrytemp[2][1]}</div>
-        <div className="grid-by-rows">{masonrytemp[3][1]}</div>
-        <div className="grid-by-rows">{masonrytemp[4][1]}</div>
+        {Object.keys(masonrytemp).map(function(column, i) {
+          return <div className="grid-by-rows" key={i}>{masonrytemp[column][1]}</div>
+        })}
       </div>
       );
     }

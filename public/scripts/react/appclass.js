@@ -120,6 +120,7 @@ class AppComponent extends React.Component {
       }
     }.bind(this));
   }
+  
   deleteimage(imageid) {
     var params = "?&imageid=" + imageid;
     $.getJSON('/api/deleteimage/'+params, function(result) {

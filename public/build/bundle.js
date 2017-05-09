@@ -10216,7 +10216,21 @@ var MosaicComponent = function (_React$Component) {
           return true;
         }
       }.bind(this));
-      var masonrytemp = { '0': [0, []], '1': [0, []], '2': [0, []], '3': [0, []], '4': [0, []] };
+      var numcolumns;
+      if (document.body.clientWidth < 800) {
+        console.log("mobile resolution detected");
+        console.log("viewport width: " + document.body.clientWidth);
+        numcolumns = 2;
+      } else {
+        console.log("mobile resolution not detected");
+        console.log("viewport width: " + document.body.clientWidth);
+        numcolumns = 5;
+      }
+      // var masonrytemp = {'0': [0, []], '1':[0, []], '2':[0, []], '3':[0, []], '4': [0, []]};
+      var masonrytemp = {};
+      for (var i = 0; i < numcolumns; i++) {
+        masonrytemp[i.toString()] = [0, []];
+      }
       // Push into the column with the smallest height.
       for (var i = 0; i < datacopy.length; i++) {
         var heights = Object.keys(masonrytemp).map(function (key) {
@@ -10243,31 +10257,13 @@ var MosaicComponent = function (_React$Component) {
       return _react2.default.createElement(
         'div',
         { className: 'grid-by-columns' },
-        _react2.default.createElement(
-          'div',
-          { className: 'grid-by-rows' },
-          masonrytemp[0][1]
-        ),
-        _react2.default.createElement(
-          'div',
-          { className: 'grid-by-rows' },
-          masonrytemp[1][1]
-        ),
-        _react2.default.createElement(
-          'div',
-          { className: 'grid-by-rows' },
-          masonrytemp[2][1]
-        ),
-        _react2.default.createElement(
-          'div',
-          { className: 'grid-by-rows' },
-          masonrytemp[3][1]
-        ),
-        _react2.default.createElement(
-          'div',
-          { className: 'grid-by-rows' },
-          masonrytemp[4][1]
-        )
+        Object.keys(masonrytemp).map(function (column, i) {
+          return _react2.default.createElement(
+            'div',
+            { className: 'grid-by-rows', key: i },
+            masonrytemp[column][1]
+          );
+        })
       );
     }
   }]);
